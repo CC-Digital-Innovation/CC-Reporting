@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import List
 from openJson import JsonFileReader
 
+# Dataclasses for data domain alerts payload to be used in data validation, storage, and retrieval accross multiple files
 @dataclass
 class Link:
     rel: str
@@ -13,6 +14,48 @@ class Link:
 
     def to_dict(self):
         return {'rel': self.rel, 'href': self.href}
+@dataclass
+class pageLinks:
+    rel: str
+    href: str
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(**data)
+    def to_dict(self):
+        return {'rel': self.rel, 'href': self.href}
+@dataclass
+class listPageLinks:
+    page_links: List[pageLinks]
+
+    @classmethod
+    def from_dict(cls, data):
+        data['page_links'] = [pageLinks.from_dict(page_links) for page_links in data['page_links']]
+        return cls(**data)
+    def to_dict(self):
+        return {
+            'page_links': [page_links.to_dict() for page_links in self.page_links],
+        }
+@dataclass
+class pageInfo:
+    current_page : int
+    page_entries: int
+    total_entries: int
+    page_size  : int
+    page_links : List[Link]
+
+    @classmethod
+    def from_dict(cls, data):
+        data['page_links'] = [Link.from_dict(page_links) for page_links in data['page_links']]
+        return cls(**data)
+    def to_dict(self):
+        return {
+            'current_page': self.current_page,
+            'page_entries': self.page_entries,
+            'total_entries': self.total_entries,
+            'page_size': self.page_size,
+            'page_links': [page_links.to_dict() for page_links in self.page_links],
+        }
 @dataclass
 class baseDict:
     id : str
@@ -79,17 +122,20 @@ class baseDict:
 @dataclass
 class alertList:
     alert_list: List[dict]
+    paging_info: pageInfo
 
     @classmethod
     def from_dict(cls, data):
         data['alert_list'] = [baseDict.from_dict(alert) for alert in data['alert_list']]
+        data['paging_info'] = pageInfo.from_dict(data['paging_info'])
         return cls(**data)
     def to_dict(self):
         return {
             'alert_list': [alert.to_dict() for alert in self.alert_list],
+            'paging_info': self.paging_info.to_dict(),
         }
     
-json_file_reader = JsonFileReader('ddAllertsPayload.json')
+json_file_reader = JsonFileReader('ddAllertsPayload1.json')
 jsonDat = json_file_reader.json_data
 ddObject = alertList.from_dict(jsonDat)
 

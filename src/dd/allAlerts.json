@@ -1,0 +1,157 @@
+{
+    "uniqueList": [
+        {
+            "additional_info": "SpaceUsage(%)=90",
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "object_id": "FilesysType=2"
+        },
+        {
+            "additional_info": "DNS-Servers = see output from net show dns",
+            "msg": "Unable to communicate with configured DNS."
+        },
+        {
+            "component_name": "NJPure",
+            "current_severity": "warning",
+            "event": "EULA not accepted"
+        },
+        {
+            "component_name": "upgrades",
+            "current_severity": "info",
+            "event": "update completed"
+        },
+        {
+            "component_name": "cte.ethe",
+            "current_severity": "warning",
+            "event": "failure"
+        },
+        {
+            "id": "pool_2",
+            "message": "Storage pool SAS Pool has exceeded its critical threshold of 95% (used+preallocated: 97%)."
+        },
+        {
+            "id": "fs_58",
+            "message": "The used space of a file system backup_fs under the NAS Server BRXFILESUNITY in the system nju400mgmt is over 75% full."        
+        },
+        {
+            "id": "fs_58",
+            "message": "Storage resource backup_fs is operating normally"
+        },
+        {
+            "message": "A recommended system software (version 5.3.0.0.5.120) is now available for download. Version 5.3.0.0.5.120 is the latest release. Refer to the 5.3.0 Release Notes on dell.com/support for all new features and known issues addressed."
+        },
+        {
+            "message": "Your contract has been refreshed successfully."
+        }
+    ]
+}
+{
+    "nonUniqueList": [
+        {
+            "additional_info": "SpaceUsage(%)=90",
+            "alert_id": "p0-213",
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "object_id": "FilesysType=2"
+        },
+        {
+            "additional_info": "SpaceUsage(%)=90",
+            "alert_id": "p0-214",
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "object_id": "FilesysType=2"
+        },
+        {
+            "additional_info": "SpaceUsage(%)=90",
+            "alert_id": "p0-215",
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "object_id": "FilesysType=2"
+        },
+        {
+            "additional_info": "SpaceUsage(%)=90",
+            "alert_id": "p0-216",
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "object_id": "FilesysType=2"
+        },
+        {
+            "additional_info": "DNS-Servers = see output from net show dns",
+            "alert_id": "p0-217",
+            "msg": "Unable to communicate with configured DNS."
+        },
+        {
+            "additional_info": "SpaceUsage(%)=90",
+            "alert_id": "p0-218",
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "object_id": "FilesysType=2"
+        },
+        {
+            "additional_info": "SpaceUsage(%)=90",
+            "alert_id": "p0-220",
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "object_id": "FilesysType=2"
+        },
+        {
+            "component_name": "NJPure",
+            "current_severity": "warning",
+            "event": "EULA not accepted"
+        },
+        {
+            "component_name": "upgrades",
+            "current_severity": "info",
+            "event": "update completed"
+        },
+        {
+            "component_name": "cte.ethe",
+            "current_severity": "warning",
+            "event": "failure"
+        },
+        {
+            "content_id": "alert_15182",
+            "id": "pool_2",
+            "message": "Storage pool SAS Pool has exceeded its critical threshold of 95% (used+preallocated: 97%)."
+        },
+        {
+            "content_id": "alert_15183",
+            "id": "pool_2",
+            "message": "Storage pool SAS Pool has exceeded its critical threshold of 95% (used+preallocated: 97%)."
+        },
+        {
+            "content_id": "alert_15184",
+            "id": "fs_58",
+            "message": "The used space of a file system backup_fs under the NAS Server BRXFILESUNITY in the system nju400mgmt is over 75% full."        
+        },
+        {
+            "content_id": "alert_15185",
+            "id": "fs_58",
+            "message": "Storage resource backup_fs is operating normally"
+        },
+        {
+            "content_id": "alert_15186",
+            "id": "pool_2",
+            "message": "Storage pool SAS Pool has exceeded its critical threshold of 95% (used+preallocated: 97%)."
+        },
+        {
+            "content_id": "alert_15187",
+            "id": "pool_2",
+            "message": "Storage pool SAS Pool has exceeded its critical threshold of 95% (used+preallocated: 97%)."
+        },
+        {
+            "message": "A recommended system software (version 5.3.0.0.5.120) is now available for download. Version 5.3.0.0.5.120 is the latest release. Refer to the 5.3.0 Release Notes on dell.com/support for all new features and known issues addressed."
+        },
+        {
+            "message": "Your contract has been refreshed successfully."
+        },
+        {
+            "content_id": "alert_15190",
+            "id": "pool_2",
+            "message": "Storage pool SAS Pool has exceeded its critical threshold of 95% (used+preallocated: 97%)."
+        },
+        {
+            "content_id": "alert_15191",
+            "id": "pool_2",
+            "message": "Storage pool SAS Pool has exceeded its critical threshold of 95% (used+preallocated: 97%)."
+        },
+        {
+            "content_id": "alert_15192",
+            "id": "pool_2",
+            "message": "Storage pool SAS Pool has exceeded its critical threshold of 95% (used+preallocated: 97%)."
+        }
+    ]
+}
