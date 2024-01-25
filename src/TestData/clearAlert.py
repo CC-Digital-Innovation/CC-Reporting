@@ -1,5 +1,6 @@
 from openJson import jsonR
 import pandas as pd
+import tempfile
 # Test file that takes in a json file and outputs information onto console
 # jsonR stands for json reader
 # This is a test file to play with data manipulation of pandas dataframes to remove unnecessary columns and extract relevant information
@@ -62,5 +63,25 @@ unity_df.columns = [col.replace('.', ' ').title() for col in unity_df.columns]
 # unity_df.rename(columns = {"content.severity": "Severity", "content.component.id" : "Component ID"}, inplace=True)
 unity_df.rename_axis("Unity Alerts", inplace=True)
 
-print(dd_df, pure_df, unity_df, sep='\n\n')
+# Create temporary files for manipulated dataframes in csv format to be sent as emails in Email-API
+with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "ddCapacity", delete = True, delete_on_close=False) as temp:
+    dd_df.to_csv(temp.name)
+    print(temp.read())
+    print("\n\n")
+    print(temp.name)
+
+with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "pureCapacity", delete = True, delete_on_close=False) as temp:
+    pure_df.to_csv(temp.name)
+    print(temp.read())
+    print("\n\n")
+    print(temp.name)
+
+
+with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "unityCapacity", delete = True, delete_on_close=False) as temp:
+    unity_df.to_csv(temp.name)
+    print(temp.read())
+    print("\n\n")
+    print(temp.name)
+
+# print(dd_df, pure_df, unity_df, sep='\n\n')
 
