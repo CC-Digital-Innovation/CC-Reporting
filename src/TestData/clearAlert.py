@@ -42,12 +42,6 @@ dd_df["action"] = dd_df["action"].str.replace("\n", "").str.split().str.join(" "
 #     else:
 #         return parts[1]
 
-
-# dd_df["additional_info"] = dd_df["additional_info"].apply(extract_integer)
-
-#            object_id                             additional_info       class                                             action
-#           category component_type current_severity              event component_name
-#             content.severity content.component.id
 # Print dataframes
 dd_df.set_index("id", inplace=True)
 dd_df.fillna(inplace=True, value="N/A")
