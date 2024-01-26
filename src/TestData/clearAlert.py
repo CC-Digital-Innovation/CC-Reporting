@@ -29,59 +29,71 @@ dd_df = pd.json_normalize(dd_data["alert_list"])
 pure_df = pd.json_normalize(pure_data)
 unity_df = pd.json_normalize(unity_data["entries"])
 
-# Manipulate dataframes to remove unnecessary columns and extract relevant information
-dd_df = dd_df.drop(columns=["alert_id", "event_id" , "description", "node_id", "link","snmp_notification_oid", "name", "alert_gen_epoch", "clear_epoch", "status", "severity", "msg", "clear_additional_info"])
-pure_df = pure_df.drop(columns=["details", "opened", "expected", "code", "actual"])
-unity_df = unity_df.drop(columns=["@base", "updated", "content.state", "content.description", "links", "content.timestamp", "content.component.resource"])
-dd_df["action"] = dd_df["action"].str.replace("\n", "").str.split().str.join(" ")
+# Manipulate dataframes to remove unnecessary columns and extract relevant information, and standardize the time formatting
+dd_df = dd_df.drop(columns=["alert_id", "action","clear_epoch", "description", "node_id", "link", "snmp_notification_oid", "name", "status", "additional_info", "clear_additional_info"])
+dd_df["msg"] = dd_df["msg"].str.replace("\n", "").str.split().str.join(" ")
+dd_df['alert_gen_epoch'] = pd.to_datetime(dd_df['alert_gen_epoch'], unit='s', utc = True)
+dd_df['alert_gen_epoch'] = dd_df['alert_gen_epoch'].dt.tz_convert('US/Eastern')
+dd_df['alert_gen_epoch'] = dd_df['alert_gen_epoch'].dt.strftime('%Y-%m-%d %H:%M:%S %Z')
 
-# Code to extract capacity data from dd dataframe
-# def extract_integer(s):
-#     parts = s.split('=')
-#     if parts[1] == type(int):
-#         return parts[1]
-#     else:
-#         return parts[1]
+pure_df = pure_df.drop(columns=["details","category", "expected", "current_severity","code", "actual"])
+pure_df["opened"] = pd.to_datetime(pure_df["opened"], format='%Y-%m-%dT%H:%M:%SZ', utc=True)
+pure_df["opened"] = pure_df["opened"].dt.tz_convert('US/Eastern')
+pure_df["opened"] = pure_df["opened"].dt.strftime('%Y-%m-%d %H:%M:%S %Z')
 
-# Print dataframes
+unity_df = unity_df.drop(columns=["@base", "updated", "content.state", "content.description", "links", "content.severity" ,"content.component.id", "content.component.resource"])
+unity_df["content.timestamp"] = pd.to_datetime(unity_df["content.timestamp"], format='%Y-%m-%dT%H:%M:%S.%fZ', utc=True)
+unity_df["content.timestamp"] = unity_df["content.timestamp"].dt.tz_convert('US/Eastern')
+unity_df["content.timestamp"] = unity_df["content.timestamp"].dt.strftime('%Y-%m-%d %H:%M %Z')
+
+# Print dataframes and obtain professional formatting
 dd_df.set_index("id", inplace=True)
-dd_df.fillna(inplace=True, value="N/A")
-# Test code to rename columns
-# dd_df.rename(columns={"additional_info": "Storage Capacity", "object_id": "Object Identification", "class" : "Class", "action": "Action"}, inplace=True)
-# Code to automatically rename columns without manually entering it
+dd_df.fillna(inplace=True, value="")
+dd_df.rename(columns= {'msg': 'Message', 'alert_gen_epoch': 'Post Time', 'object_id': "Object", 'alert_gen_epoch': 'Post Time'}, inplace=True)
+
 dd_df.columns = [col.replace('_', ' ').title() for col in dd_df.columns]
-dd_df.rename_axis("DD Alerts", inplace=True)
+dd_df.rename_axis("DD ID", inplace=True)
+dd_df = dd_df.reindex(columns=["Post Time", "Severity", "Class", "Object", "Message"])
 
 pure_df.set_index("id", inplace=True)
-# pure_df.rename(columns = {"category": "Category", "component_type" : "Component Type", "current_severity" : "Current Severity", "event": "Event", "component_name": "Component Name"}, inplace=True)
 pure_df.columns = [col.replace('_', ' ').title() for col in pure_df.columns]
-pure_df.rename_axis("Pure Alerts", inplace=True)
+pure_df.rename_axis("Pure ID", inplace=True)
+pure_df.rename(columns = {'Opened':'Date/Time (EDT)','Component Type': 'Component', 'Component Name': 'Name'}, inplace=True)
+pure_df = pure_df.reindex(columns=["Date/Time (EDT)", "Component", "Name", "Event"])
 
 unity_df.set_index("content.id", inplace=True)
-unity_df.fillna(inplace=True, value="N/A")
+unity_df.fillna(inplace=True, value="")
 unity_df.columns = [col.replace('.', ' ').title() for col in unity_df.columns]
-# unity_df.rename(columns = {"content.severity": "Severity", "content.component.id" : "Component ID"}, inplace=True)
-unity_df.rename_axis("Unity Alerts", inplace=True)
+unity_df.rename_axis("Unity ID", inplace=True)
+unity_df.rename(columns = {"Content Timestamp": "Time", "Content Message": "Message"}, inplace=True)
+unity_df = unity_df.reindex(columns=["Time", "Message"])
+
+def convert_epoch_to_datetime(df, column, output_column='datetime'):
+    # Convert epoch times to datetime objects
+    df[output_column] = pd.to_datetime(df[column], unit='s')
+
+    return df
+
 
 # Create temporary files for manipulated dataframes in csv format to be sent as emails in Email-API
-with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "ddCapacity", delete = True, delete_on_close=False) as temp:
+with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "ddCapacity", delete_on_close=False) as temp:
     dd_df.to_csv(temp.name)
-    print(temp.read())
-    print("\n\n")
-    print(temp.name)
+    # print(temp.read())
+    # print("\n\n")
+    # print(temp.name)
 
-with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "pureCapacity", delete = True, delete_on_close=False) as temp:
+with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "pureCapacity", delete_on_close=False) as temp:
     pure_df.to_csv(temp.name)
-    print(temp.read())
-    print("\n\n")
-    print(temp.name)
+    # print(temp.read())
+    # print("\n\n")
+    # print(temp.name)
 
 
-with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "unityCapacity", delete = True, delete_on_close=False) as temp:
+with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "unityCapacity", delete_on_close=False) as temp:
     unity_df.to_csv(temp.name)
-    print(temp.read())
-    print("\n\n")
-    print(temp.name)
+    # print(temp.read())
+    # print("\n\n")
+    # print(temp.name)
 
-# print(dd_df, pure_df, unity_df, sep='\n\n')
+print(dd_df, pure_df, unity_df, sep='\n\n')
 
