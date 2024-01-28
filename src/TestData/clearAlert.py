@@ -1,99 +1,210 @@
-from openJson import jsonR
 import pandas as pd
 import tempfile
+import json
+from pretty_html_table import build_table
+from datetime import datetime, timezone, timedelta
 # Test file that takes in a json file and outputs information onto console
 # jsonR stands for json reader
 # This is a test file to play with data manipulation of pandas dataframes to remove unnecessary columns and extract relevant information
 
 # Initialize variables for data extraction
-filePath = 'src/testdata/'
+file_path = "TestData/"
 dd_fileName = 'ddAllertsPayload.json'
 pure_fileName = 'purealert.json'
 unity_fileName = 'unityalert.json'
 
-# Load json files into objects
-dd_data = jsonR(filePath + dd_fileName).loadJson()
-pure_data = jsonR(filePath + pure_fileName).loadJson()
-unity_data = jsonR(filePath + unity_fileName).loadJson()
 
-# Load json files into easily readable format
-dd_dumps = jsonR(filePath + dd_fileName).dumpsJson()
-pure_dumps = jsonR(filePath + pure_fileName).dumpsJson()
-unity_dumps = jsonR(filePath + unity_fileName).dumpsJson()
+# Load json file into object
+def get_json_data(file_name, file_path):
+    try:
+        with open(file_path + file_name, "r") as json_file:
+            return json.load(json_file)
+    except FileNotFoundError:
+        return f"The file '{file_path}' could not be found."
+    except Exception as e:
+        return f"An error occurred: {e}"
+    
+# def get_write_html(filepath):
+#     try:
+#         with open(filepath, 'w') as f:
+#             with open('TestData/header.html', 'r') as header:
+#                 f.write(header.read())
+#                 return f.write("<h1>Test</h1>")
+#     except Exception as e:
+#         return f"An error occurred: {e}"
 
-# Test loaded objects
-# print(dd_data, pure_data, unity_data, sep='\n\n')
+def get_write_html(content, prefix):
+    try:
+        # Get the current time with timezone information
+        # Get the current time in UTC
+        current_time_utc = datetime.now(timezone.utc)
 
-# Normalize json files into dataframes
-dd_df = pd.json_normalize(dd_data["alert_list"])
-pure_df = pd.json_normalize(pure_data)
-unity_df = pd.json_normalize(unity_data["entries"])
+        # Calculate the offset for Eastern Daylight Time (EDT)
+        edt_offset = timedelta(hours=4)
 
-# Manipulate dataframes to remove unnecessary columns and extract relevant information, and standardize the time formatting
-dd_df = dd_df.drop(columns=["alert_id", "action","clear_epoch", "description", "node_id", "link", "snmp_notification_oid", "name", "status", "additional_info", "clear_additional_info"])
-dd_df["msg"] = dd_df["msg"].str.replace("\n", "").str.split().str.join(" ")
-dd_df['alert_gen_epoch'] = pd.to_datetime(dd_df['alert_gen_epoch'], unit='s', utc = True)
-dd_df['alert_gen_epoch'] = dd_df['alert_gen_epoch'].dt.tz_convert('US/Eastern')
-dd_df['alert_gen_epoch'] = dd_df['alert_gen_epoch'].dt.strftime('%Y-%m-%d %H:%M:%S %Z')
+        # Apply the offset to get the current time in EDT
+        current_time_edt = current_time_utc - edt_offset
 
-pure_df = pure_df.drop(columns=["details","category", "expected", "current_severity","code", "actual"])
-pure_df["opened"] = pd.to_datetime(pure_df["opened"], format='%Y-%m-%dT%H:%M:%SZ', utc=True)
-pure_df["opened"] = pure_df["opened"].dt.tz_convert('US/Eastern')
-pure_df["opened"] = pure_df["opened"].dt.strftime('%Y-%m-%d %H:%M:%S %Z')
+        # Format the timestamp with the full timezone name
+        formatted_date = current_time_edt.strftime('%Y-%m-%d %H:%M:%S EDT')
+        with open('table_report.html', 'a+') as file:
+            file.seek(0,2)
+            file.tell()
+            file.write("""
+                <style>
+                    h1, h2 {
+                        text-align: center;
+                        color: #ffffff; /* White text color for better contrast */
+                    }
+                    h1 {
+                        background-color: #305496; /* Dark blue background color */
+                        border-top: 2px solid #2c3e50; /* Dark blue border color */
+                        font-size: 24px; /* Larger font size for h1 */
+                        width : 80%;
+                        margin: 0 auto;
+                        padding-top: 5px;
+                        padding-bottom: 5px;
+                    }
+                    h2 {
+                        padding-top: 5px;
+                        padding-bottom:5px;
+                        background-color: #305496; /* Darker blue background color */
+                        width: 80%;
+                        margin: 0 auto;
+                        font-size: 20px; /* Slightly smaller font size for h2 */
+                        border-bottom: 2px solid #2c3e50; /* Dark blue border color */
+                    }
+                    table {
+                        width: 80%;
+                        margin: 0 auto;
+                        border: 1px solid #2c3e50; /* Dark blue border color for table */
+                        border-collapse: collapse;
+                        box-shadow: 0 4px 8px rgba(44, 62, 80, 0.2); /* Dark blue box shadow for table */
+                    }
+                    th, td {
+                        border: 1px solid #2c3e50; /* Dark blue border color for table cells */
+                        padding: 10px;
+                        text-align: left;
+                    }
+                </style>
+            """)
 
-unity_df = unity_df.drop(columns=["@base", "updated", "content.state", "content.description", "links", "content.severity" ,"content.component.id", "content.component.resource"])
-unity_df["content.timestamp"] = pd.to_datetime(unity_df["content.timestamp"], format='%Y-%m-%dT%H:%M:%S.%fZ', utc=True)
-unity_df["content.timestamp"] = unity_df["content.timestamp"].dt.tz_convert('US/Eastern')
-unity_df["content.timestamp"] = unity_df["content.timestamp"].dt.strftime('%Y-%m-%d %H:%M %Z')
+            file.write(f"<h1>{prefix} Report</h1>")
+            # Add whatever timezone abbreviation the person is in to the end of the timestamp
 
-# Print dataframes and obtain professional formatting
-dd_df.set_index("id", inplace=True)
-dd_df.fillna(inplace=True, value="")
-dd_df.rename(columns= {'msg': 'Message', 'alert_gen_epoch': 'Post Time', 'object_id': "Object", 'alert_gen_epoch': 'Post Time'}, inplace=True)
+            file.write(f"<h2>Report Generated: {formatted_date}</h2>")
 
-dd_df.columns = [col.replace('_', ' ').title() for col in dd_df.columns]
-dd_df.rename_axis("DD ID", inplace=True)
-dd_df = dd_df.reindex(columns=["Post Time", "Severity", "Class", "Object", "Message"])
-
-pure_df.set_index("id", inplace=True)
-pure_df.columns = [col.replace('_', ' ').title() for col in pure_df.columns]
-pure_df.rename_axis("Pure ID", inplace=True)
-pure_df.rename(columns = {'Opened':'Date/Time (EDT)','Component Type': 'Component', 'Component Name': 'Name'}, inplace=True)
-pure_df = pure_df.reindex(columns=["Date/Time (EDT)", "Component", "Name", "Event"])
-
-unity_df.set_index("content.id", inplace=True)
-unity_df.fillna(inplace=True, value="")
-unity_df.columns = [col.replace('.', ' ').title() for col in unity_df.columns]
-unity_df.rename_axis("Unity ID", inplace=True)
-unity_df.rename(columns = {"Content Timestamp": "Time", "Content Message": "Message"}, inplace=True)
-unity_df = unity_df.reindex(columns=["Time", "Message"])
-
-def convert_epoch_to_datetime(df, column, output_column='datetime'):
-    # Convert epoch times to datetime objects
-    df[output_column] = pd.to_datetime(df[column], unit='s')
-
-    return df
-
-
-# Create temporary files for manipulated dataframes in csv format to be sent as emails in Email-API
-with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "ddCapacity", delete_on_close=False) as temp:
-    dd_df.to_csv(temp.name)
-    # print(temp.read())
-    # print("\n\n")
-    # print(temp.name)
-
-with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "pureCapacity", delete_on_close=False) as temp:
-    pure_df.to_csv(temp.name)
-    # print(temp.read())
-    # print("\n\n")
-    # print(temp.name)
+            file.write(content)
+    except Exception as e:
+        return f"An error occurred: {e}"
 
 
-with tempfile.NamedTemporaryFile(suffix='.csv', prefix = "unityCapacity", delete_on_close=False) as temp:
-    unity_df.to_csv(temp.name)
-    # print(temp.read())
-    # print("\n\n")
-    # print(temp.name)
+def get_full_html(temp_file, prefix):
+    try:
+        # Open temp_file and write the html content
+        with open(temp_file, 'r', encoding = 'utf-8') as f:
+            content = f.read()
+            return get_write_html(content, prefix)
+    except Exception as e:
+        return f"An error occurred: {e}"
 
-print(dd_df, pure_df, unity_df, sep='\n\n')
+def get_temp_html(df, prefix):
+    try:
+        with tempfile.NamedTemporaryFile( suffix='.html', prefix = prefix, delete_on_close=False) as temp:
+            temp.write(build_table(df, 'blue_dark', index = False, font_size = "25px",width = "300px", padding = "15px").encode('utf-8'))
+            temp.flush()
+            return get_full_html(temp.name, prefix)
+    except Exception as e:
+        return f"An error occurred: {e}" 
+
+def get_temp_csv(df, prefix):
+    #create temporary csv file
+    try:
+        with tempfile.NamedTemporaryFile(suffix='.csv', prefix = prefix, delete_on_close=False) as temp:
+            df.to_csv(temp.name, index=True, header=True)
+            temp_df = pd.read_csv(temp.name)
+            return get_temp_html(temp_df, prefix)
+    except Exception as e:
+        return f"An error occurred: {e}"
+
+
+    
+def get_dd_active_alerts(dd_data):
+    try:
+        dd_df = pd.json_normalize(dd_data["alert_list"])
+        # Set this to the active alerts setting
+        dd_df = dd_df[dd_df["status"] == "active"]
+        dd_df = dd_df.drop(columns=["alert_id", "action","clear_epoch", "description", "node_id", "link", "snmp_notification_oid", "name", "status", "additional_info", "clear_additional_info"])
+        dd_df["msg"] = dd_df["msg"].str.replace("\n", "").str.split().str.join(" ")
+        dd_df['alert_gen_epoch'] = pd.to_datetime(dd_df['alert_gen_epoch'], unit='s', utc = True)
+        dd_df['alert_gen_epoch'] = dd_df['alert_gen_epoch'].dt.tz_convert('US/Eastern')
+        dd_df['alert_gen_epoch'] = dd_df['alert_gen_epoch'].dt.strftime('%Y-%m-%d %H:%M:%S %Z')
+        dd_df.set_index("id", inplace=True)
+        dd_df.fillna(inplace=True, value="")
+        dd_df.rename(columns= {'msg': 'Message', 'alert_gen_epoch': 'Post Time', 'object_id': "Object", 'alert_gen_epoch': 'Post Time'}, inplace=True)
+        dd_df.columns = [col.replace('_', ' ').title() for col in dd_df.columns]
+        dd_df.rename_axis("DD ID", inplace=True)
+        dd_df = dd_df.reindex(columns=["Post Time", "Severity", "Class", "Object", "Message"])
+        prefix = "Data Domain Capacity Alerts"
+        if dd_df.empty == True:
+            dd_df = dd_df.drop(columns=["Post Time", "Severity", "Class", "Object"])
+            dd_df.loc[''] = 'No Active Alerts'
+            return get_temp_csv(dd_df,prefix)
+        else:
+            return get_temp_csv(dd_df, prefix)
+    except Exception as e:
+        return f"An error occurred: {e}"
+
+
+def get_pure_active_alerts(pure_data):
+    try:
+        pure_df = pd.json_normalize(pure_data)
+        # Set this to the active alerts setting
+        pure_df = pure_df[pure_df["current_severity"] == "warning"]
+        pure_df = pure_df.drop(columns=["details","category", "expected", "current_severity","code", "actual"])
+        pure_df["opened"] = pd.to_datetime(pure_df["opened"], format='%Y-%m-%dT%H:%M:%SZ', utc=True)
+        pure_df["opened"] = pure_df["opened"].dt.tz_convert('US/Eastern')
+        pure_df["opened"] = pure_df["opened"].dt.strftime('%Y-%m-%d %H:%M:%S %Z')
+        pure_df.set_index("id", inplace=True)
+        pure_df.columns = [col.replace('_', ' ').title() for col in pure_df.columns]
+        pure_df.rename_axis("Pure ID", inplace=True)
+        pure_df.rename(columns = {'Opened':'Date/Time (EDT)','Component Type': 'Component', 'Component Name': 'Name'}, inplace=True)
+        pure_df = pure_df.reindex(columns=["Date/Time (EDT)", "Component", "Name", "Event"])
+        prefix = "Pure Capacity Alerts Report"
+        return get_temp_csv(pure_df, prefix)
+    except Exception as e:
+        return f"An error occurred: {e}"
+
+def get_unity_active_alerts(unity_data):
+    try:
+        unity_df = pd.json_normalize(unity_data["entries"])
+        # Set this to the active alerts setting
+        unity_df = unity_df[unity_df["content.severity"] == 5]
+        unity_df = unity_df.drop(columns=["@base", "updated", "content.state", "content.description", "links", "content.severity" ,"content.component.id", "content.component.resource"])
+        unity_df["content.timestamp"] = pd.to_datetime(unity_df["content.timestamp"], format='%Y-%m-%dT%H:%M:%S.%fZ', utc=True)
+        unity_df["content.timestamp"] = unity_df["content.timestamp"].dt.tz_convert('US/Eastern')
+        unity_df["content.timestamp"] = unity_df["content.timestamp"].dt.strftime('%Y-%m-%d %H:%M %Z')
+        unity_df.set_index("content.id", inplace=True)
+        unity_df.fillna(inplace=True, value="")
+        unity_df.columns = [col.replace('.', ' ').title() for col in unity_df.columns]
+        unity_df.rename_axis("Unity ID", inplace=True)
+        unity_df.rename(columns = {"Content Timestamp": "Time", "Content Message": "Message"}, inplace=True)
+        unity_df = unity_df.reindex(columns=["Time", "Message"])
+        prefix = "Unity Capacity Alerts Report"
+        return get_temp_csv(unity_df,prefix)
+    except Exception as e:
+        return f"An error occurred: {e}"
+
+
+if __name__ == "__main__":
+    # Get json data from file
+    try:
+        dd_data = get_json_data(file_name = dd_fileName, file_path= file_path)
+        pure_data = get_json_data(file_name = pure_fileName, file_path= file_path)
+        unity_data = get_json_data(file_name = unity_fileName, file_path= file_path)
+        dd_df = get_dd_active_alerts(dd_data)
+        pure_df = get_pure_active_alerts(pure_data)
+        unity_df = get_unity_active_alerts(unity_data)
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
