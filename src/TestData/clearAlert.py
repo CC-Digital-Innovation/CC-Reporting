@@ -3,9 +3,10 @@ import tempfile
 import json
 from pretty_html_table import build_table
 from datetime import datetime, timezone, timedelta
-# Test file that takes in a json file and outputs information onto console
-# jsonR stands for json reader
-# This is a test file to play with data manipulation of pandas dataframes to remove unnecessary columns and extract relevant information
+
+# File that outputs charts and tables to html
+# Add any json here and take the data you want to display and the code will output a css and html file with the nice formatted data
+
 
 # Initialize variables for data extraction
 file_path = "TestData/"
@@ -24,80 +25,121 @@ def get_json_data(file_name, file_path):
     except Exception as e:
         return f"An error occurred: {e}"
     
-# def get_write_html(filepath):
-#     try:
-#         with open(filepath, 'w') as f:
-#             with open('TestData/header.html', 'r') as header:
-#                 f.write(header.read())
-#                 return f.write("<h1>Test</h1>")
-#     except Exception as e:
-#         return f"An error occurred: {e}"
 
 def get_write_html(content, prefix):
     try:
-        # Get the current time with timezone information
-        # Get the current time in UTC
         current_time_utc = datetime.now(timezone.utc)
-
-        # Calculate the offset for Eastern Daylight Time (EDT)
         edt_offset = timedelta(hours=4)
-
-        # Apply the offset to get the current time in EDT
         current_time_edt = current_time_utc - edt_offset
-
-        # Format the timestamp with the full timezone name
         formatted_date = current_time_edt.strftime('%Y-%m-%d %H:%M:%S EDT')
-        with open('table_report.html', 'a+') as file:
-            file.seek(0,2)
-            file.tell()
-            file.write("""
+        with open('table_report.html', 'a+') as file:                   
+            if file.tell() == 0:
+                file.write("""<html>
+                <head>
                 <style>
+                    body {
+                        background-image: url("testdata/waves.jpg");
+                        background-repeat: no-repeat;
+                        background-size: cover;
+                        background-position: center center;
+                        background-attachment: fixed;
+                    }
+                    p{
+                        margin: 0 auto;
+                        width: 1250px;                  
+                    }
+            
                     h1, h2 {
-                        text-align: center;
                         color: #ffffff; /* White text color for better contrast */
+                        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+                        font-size: 21px; /* Set the font size */
                     }
                     h1 {
                         background-color: #305496; /* Dark blue background color */
-                        border-top: 2px solid #2c3e50; /* Dark blue border color */
+                        border-top: 1px solid white; /* Dark blue border color */
+                        border-left: 1px solid white; /* Dark blue border color */
+                        border-right: 1px solid white; /* Dark blue border color */
                         font-size: 24px; /* Larger font size for h1 */
-                        width : 80%;
+                        width : 1250px;
                         margin: 0 auto;
+                        margin-top: 25px;
                         padding-top: 5px;
                         padding-bottom: 5px;
+                        text-align: center;
+                        border-radius: 15px 15px 0 0;
+                           
                     }
                     h2 {
                         padding-top: 5px;
                         padding-bottom:5px;
                         background-color: #305496; /* Darker blue background color */
-                        width: 80%;
+                        width: 1250px;
                         margin: 0 auto;
                         font-size: 20px; /* Slightly smaller font size for h2 */
-                        border-bottom: 2px solid #2c3e50; /* Dark blue border color */
+                        border-left: 1px solid white; /* Dark blue border color */
+                        border-right: 1px solid white; /* Dark blue border color */
+                        text-align: center;
                     }
                     table {
-                        width: 80%;
+                        width: 1250px;
                         margin: 0 auto;
-                        border: 1px solid #2c3e50; /* Dark blue border color for table */
-                        border-collapse: collapse;
+                        border-radius: 0 0 15px 15px;
                         box-shadow: 0 4px 8px rgba(44, 62, 80, 0.2); /* Dark blue box shadow for table */
+                        padding-top: 5px;
+                        padding-bottom: 5px;
+                        margin-bottom: 25px;
+                        border-collapse: collapse;
+                           
                     }
-                    th, td {
-                        border: 1px solid #2c3e50; /* Dark blue border color for table cells */
+                    th, td{
+                        outline: 1px solid white; 
                         padding: 10px;
-                        text-align: left;
                     }
+                    .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(3) {
+                           text-align: left !important;
+                    }
+                    .Data > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) {
+                        border-radius: 0 0 0 15px;
+                    }
+                    .Data > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(2) {
+                        border-radius: 0 0 15px 0;
+                    }
+                    .Pure > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(1) {
+                        border-radius: 0 0 0 15px;
+                    }
+                    .Pure > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(5) {
+                        border-radius: 0 0 15px 0;
+                    }
+                    .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) {
+                        border-radius: 0 0 0 15px;
+                    }
+                    .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(3) {
+                        border-radius: 0 0 15px 0;
+                    }
+
+                    div.cclogo{
+
+                        font-size: 24px; /* Larger font size for h1 */
+                        margin: 0 auto;
+                        width: 1250px;
+                        padding-top: 5px;
+                        padding-bottom: 5px;
+                        text-align: center;
+                 }
+                    img.logo{
+                        width: 30%;
+                        height: 30%;
+                    }
+                    
                 </style>
-            """)
-
-            file.write(f"<h1>{prefix} Report</h1>")
-            # Add whatever timezone abbreviation the person is in to the end of the timestamp
-
-            file.write(f"<h2>Report Generated: {formatted_date}</h2>")
-
-            file.write(content)
+                </head>
+                """)
+                # write the next line but with an image after the cclogo after h2 tag
+                file.write(f"<div class='cclogo'><img class='logo' src='testdata/cclogo.png'/></div><div class = '{prefix}'><h1>{prefix} Report</h1><h2>Report Generated: {formatted_date}</h2>" + content + "</div>")
+            else:
+                file.write(f"<div class = '{prefix}'><h1>{prefix} Report</h1><h2>Report Generated: {formatted_date}</h2>" + content + "</div>")
     except Exception as e:
         return f"An error occurred: {e}"
-
 
 def get_full_html(temp_file, prefix):
     try:
@@ -110,8 +152,8 @@ def get_full_html(temp_file, prefix):
 
 def get_temp_html(df, prefix):
     try:
-        with tempfile.NamedTemporaryFile( suffix='.html', prefix = prefix, delete_on_close=False) as temp:
-            temp.write(build_table(df, 'blue_dark', index = False, font_size = "25px",width = "300px", padding = "15px").encode('utf-8'))
+        with tempfile.NamedTemporaryFile(suffix='.html', prefix = prefix, delete_on_close=False) as temp:
+            temp.write(build_table(df, 'blue_dark',  index = False, font_size = "25px",width = "300px", padding = "15px", border_bottom_color="white", text_align="center").encode('utf-8'))
             temp.flush()
             return get_full_html(temp.name, prefix)
     except Exception as e:
