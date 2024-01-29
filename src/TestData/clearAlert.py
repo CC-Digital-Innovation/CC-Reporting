@@ -27,15 +27,28 @@ def get_json_data(file_name, file_path):
     except Exception as e:
         return f"An error occurred: {e}"
     
+def count_calls(func):
+    def wrapper(*args, **kwargs):
+        wrapper.calls += 1
+        return func(*args, **kwargs)
+    
+    wrapper.calls = 0
+    return wrapper
 
-def get_write_html(content, prefix):
+@count_calls
+def get_write_html(content, prefix, num_rows, num_cols):
     try:
+        # print(get_write_html.calls)
+        # dfArray = []
+        # dfArray.append(prefix.split()[0])
+        # print(dfArray[0])
+        
         current_time_utc = datetime.now(timezone.utc)
         edt_offset = timedelta(hours=4)
         current_time_edt = current_time_utc - edt_offset
-        formatted_date = current_time_edt.strftime('%Y-%m-%d %H:%M:%S EDT')
-        with open('table_report.html', 'a+') as file:                   
-            if file.tell() == 0:
+        formatted_date = current_time_edt.strftime('%Y-%m-%d | %H:%M:%S EDT')
+        if get_write_html.calls == 1:
+            with open('table_report.html', 'a+') as file:
                 file.write("""<html>
                 <head>
                 <style>
@@ -97,27 +110,6 @@ def get_write_html(content, prefix):
                         outline: 1px solid white; 
                         padding: 10px;
                     }
-                    .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(3) {
-                           text-align: left !important;
-                    }
-                    .Data > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) {
-                        border-radius: 0 0 0 15px;
-                    }
-                    .Data > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(2) {
-                        border-radius: 0 0 15px 0;
-                    }
-                    .Pure > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(1) {
-                        border-radius: 0 0 0 15px;
-                    }
-                    .Pure > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(5) {
-                        border-radius: 0 0 15px 0;
-                    }
-                    .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) {
-                        border-radius: 0 0 0 15px;
-                    }
-                    .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(3) {
-                        border-radius: 0 0 15px 0;
-                    }
                     div.cclogo{
                         justify-content: center;
                         display: flex;
@@ -134,42 +126,72 @@ def get_write_html(content, prefix):
                         height: 100%;
                         width: 100%;
                     }
-                    
-                </style>
-                </head>
-                """)
-                # write the next line but with an image after the cclogo after h2 tag
-                file.write(f"<div class='cclogo'><div class='inner'><img class='logo' src='testdata/cclogo.png'/></div></div><div class = '{prefix}'><h1>{prefix} Report</h1><h2>Report Generated: {formatted_date}</h2>" + content + "</div>")
-            else:
-                file.write(f"<div class = '{prefix}'><h1>{prefix} Report</h1><h2>Report Generated: {formatted_date}</h2>" + content + "</div>")
+                    .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(3) {
+                        text-align: left !important;
+                    }
+                    .Data > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) {
+                        border-radius: 0 0 15px 15px;
+                    }
+                    .Pure > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(1) {
+                        border-radius: 0 0 0 15px;
+                    }
+                    .Pure > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(5) {
+                        border-radius: 0 0 15px 0;
+                    }
+                    .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(1) {
+                        border-radius: 0 0 0 15px;
+                    }
+                    .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(3) {
+                        border-radius: 0 0 15px 0;
+                    /* === BREAKPOINT MARKER === */
+                    }""")
+                file.write("</style></head><body>")
+                file.write(f"<div class='cclogo'><div class='inner'><img class='logo' src='testdata/cclogo.png'/></div></div><div class = '{prefix}'><h1>{prefix} Report</h1><h2>{formatted_date}</h2>" + content + "</div>")
+        elif get_write_html.calls == 2:
+            with open('table_report.html', 'a+') as file:
+                print(get_write_html.calls, prefix, num_rows, num_cols)
+                file.write(f"<div class = '{prefix}'><h1>{prefix}</h1><h2>{formatted_date}</h2>" + content + "</div>")
+        elif get_write_html.calls == 3:
+            with open('table_report.html', 'a+') as file:
+                print(get_write_html.calls, prefix, num_rows, num_cols)
+                file.write(f"<div class = '{prefix}'><h1>{prefix}</h1><h2>{formatted_date}</h2>" + content + "</div></body></html>")
     except Exception as e:
         return f"An error occurred: {e}"
 
-def get_full_html(temp_file, prefix):
+def get_full_html(temp_file, prefix, num_rows, num_cols):
     try:
         # Open temp_file and write the html content
         with open(temp_file, 'r', encoding = 'utf-8') as f:
             content = f.read()
-            return get_write_html(content, prefix)
+            return get_write_html(content, prefix, num_rows, num_cols)
     except Exception as e:
         return f"An error occurred: {e}"
 
-def get_temp_html(df, prefix):
+
+def get_temp_html(df, prefix, num_rows, num_cols):
     try:
         with tempfile.NamedTemporaryFile(suffix='.html', prefix = prefix, delete_on_close=False) as temp:
             temp.write(build_table(df, 'blue_dark',  index = False, font_size = "25px", width = "721.5px", padding = "15px", border_bottom_color="white", text_align="center").encode('utf-8'))
             temp.flush()
-            return get_full_html(temp.name, prefix)
+            return get_full_html(temp.name, prefix, num_rows, num_cols)
     except Exception as e:
         return f"An error occurred: {e}" 
-
-def get_temp_csv(df, prefix):
+    
+@count_calls
+def get_temp_csv(df, prefix, num_rows, num_cols):
     #create temporary csv file
     try:
-        with tempfile.NamedTemporaryFile(suffix='.csv', prefix = prefix, delete_on_close=False) as temp:
-            df.to_csv(temp.name, index=True, header=True)
-            temp_df = pd.read_csv(temp.name)
-            return get_temp_html(temp_df, prefix)
+        if get_temp_csv.calls == 1:
+            with tempfile.NamedTemporaryFile(suffix='.csv', prefix = prefix, delete_on_close=False) as temp:
+                df.to_csv(temp.name, index=False, header=True)
+                temp_df = pd.read_csv(temp.name)
+                return get_temp_html(temp_df, prefix, num_rows, num_cols)
+        elif get_temp_csv.calls == 2 or get_temp_csv.calls == 3:
+            with tempfile.NamedTemporaryFile(suffix='.csv', prefix = prefix, delete_on_close=False) as temp:
+                df.to_csv(temp.name, index=True, header=True)
+                temp_df = pd.read_csv(temp.name)
+                return get_temp_html(temp_df, prefix, num_rows, num_cols)
+        
     except Exception as e:
         return f"An error occurred: {e}"
 
@@ -185,19 +207,21 @@ def get_dd_active_alerts(dd_data):
         dd_df['alert_gen_epoch'] = pd.to_datetime(dd_df['alert_gen_epoch'], unit='s', utc = True)
         dd_df['alert_gen_epoch'] = dd_df['alert_gen_epoch'].dt.tz_convert('US/Eastern')
         dd_df['alert_gen_epoch'] = dd_df['alert_gen_epoch'].dt.strftime('%Y-%m-%d %H:%M:%S %Z')
-        dd_df.set_index("id", inplace=True)
+        dd_df.set_index("id", inplace=True, drop=True)
         dd_df.fillna(inplace=True, value="")
         dd_df.rename(columns= {'msg': 'Message', 'alert_gen_epoch': 'Post Time', 'object_id': "Object", 'alert_gen_epoch': 'Post Time'}, inplace=True)
         dd_df.columns = [col.replace('_', ' ').title() for col in dd_df.columns]
-        dd_df.rename_axis("DD ID", inplace=True)
+        dd_df.rename_axis(" ", inplace=True)
         dd_df = dd_df.reindex(columns=["Post Time", "Severity", "Class", "Object", "Message"])
         prefix = "Data Domain Capacity Alerts"
         if dd_df.empty == True:
             dd_df = dd_df.drop(columns=["Post Time", "Severity", "Class", "Object"])
             dd_df.loc[''] = 'No Active Alerts'
-            return get_temp_csv(dd_df,prefix)
+            num_rows, num_cols = dd_df.shape
+            return get_temp_csv(dd_df,prefix, num_rows, num_cols)
         else:
-            return get_temp_csv(dd_df, prefix)
+            num_rows, num_cols = dd_df.shape
+            return get_temp_csv(dd_df, prefix ,num_rows, num_cols)
     except Exception as e:
         return f"An error occurred: {e}"
 
@@ -217,7 +241,8 @@ def get_pure_active_alerts(pure_data):
         pure_df.rename(columns = {'Opened':'Date/Time (EDT)','Component Type': 'Component', 'Component Name': 'Name'}, inplace=True)
         pure_df = pure_df.reindex(columns=["Date/Time (EDT)", "Component", "Name", "Event"])
         prefix = "Pure Capacity Alerts Report"
-        return get_temp_csv(pure_df, prefix)
+        num_rows, num_cols = pure_df.shape
+        return get_temp_csv(pure_df, prefix, num_rows, num_cols)
     except Exception as e:
         return f"An error occurred: {e}"
 
@@ -237,7 +262,8 @@ def get_unity_active_alerts(unity_data):
         unity_df.rename(columns = {"Content Timestamp": "Time", "Content Message": "Message"}, inplace=True)
         unity_df = unity_df.reindex(columns=["Time", "Message"])
         prefix = "Unity Capacity Alerts Report"
-        return get_temp_csv(unity_df,prefix)
+        num_rows, num_cols = unity_df.shape
+        return get_temp_csv(unity_df, prefix, num_rows, num_cols)
     except Exception as e:
         return f"An error occurred: {e}"
 
