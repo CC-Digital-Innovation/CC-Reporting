@@ -13,6 +13,8 @@ file_path = "TestData/"
 dd_fileName = 'ddAllertsPayload.json'
 pure_fileName = 'purealert.json'
 unity_fileName = 'unityalert.json'
+fileArray = [dd_fileName, pure_fileName, unity_fileName]
+number_of_files = len(fileArray)
 
 
 # Load json file into object
@@ -43,16 +45,18 @@ def get_write_html(content, prefix):
                         background-size: cover;
                         background-position: center center;
                         background-attachment: fixed;
+                        
                     }
                     p{
                         margin: 0 auto;
-                        width: 1250px;                  
+                        /*width: 1250px;*/                 
                     }
             
                     h1, h2 {
                         color: #ffffff; /* White text color for better contrast */
                         font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
                         font-size: 21px; /* Set the font size */
+                        width: 721.5px;
                     }
                     h1 {
                         background-color: #305496; /* Dark blue background color */
@@ -60,7 +64,6 @@ def get_write_html(content, prefix):
                         border-left: 1px solid white; /* Dark blue border color */
                         border-right: 1px solid white; /* Dark blue border color */
                         font-size: 24px; /* Larger font size for h1 */
-                        width : 1250px;
                         margin: 0 auto;
                         margin-top: 25px;
                         padding-top: 5px;
@@ -73,7 +76,6 @@ def get_write_html(content, prefix):
                         padding-top: 5px;
                         padding-bottom:5px;
                         background-color: #305496; /* Darker blue background color */
-                        width: 1250px;
                         margin: 0 auto;
                         font-size: 20px; /* Slightly smaller font size for h2 */
                         border-left: 1px solid white; /* Dark blue border color */
@@ -81,7 +83,7 @@ def get_write_html(content, prefix):
                         text-align: center;
                     }
                     table {
-                        width: 1250px;
+                        width: 721.5px;
                         margin: 0 auto;
                         border-radius: 0 0 15px 15px;
                         box-shadow: 0 4px 8px rgba(44, 62, 80, 0.2); /* Dark blue box shadow for table */
@@ -116,26 +118,28 @@ def get_write_html(content, prefix):
                     .Unity > p:nth-child(3) > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(3) {
                         border-radius: 0 0 15px 0;
                     }
-
                     div.cclogo{
-
-                        font-size: 24px; /* Larger font size for h1 */
-                        margin: 0 auto;
-                        width: 1250px;
-                        padding-top: 5px;
-                        padding-bottom: 5px;
+                        justify-content: center;
+                        display: flex;
+                        align-items: center;
+                    }
+                    div.inner{
                         text-align: center;
-                 }
+                        margin: 0 auto;  
+                        size: fit-content;
+                        height: 234px;
+                        width: 414px;
+                    }
                     img.logo{
-                        width: 30%;
-                        height: 30%;
+                        height: 100%;
+                        width: 100%;
                     }
                     
                 </style>
                 </head>
                 """)
                 # write the next line but with an image after the cclogo after h2 tag
-                file.write(f"<div class='cclogo'><img class='logo' src='testdata/cclogo.png'/></div><div class = '{prefix}'><h1>{prefix} Report</h1><h2>Report Generated: {formatted_date}</h2>" + content + "</div>")
+                file.write(f"<div class='cclogo'><div class='inner'><img class='logo' src='testdata/cclogo.png'/></div></div><div class = '{prefix}'><h1>{prefix} Report</h1><h2>Report Generated: {formatted_date}</h2>" + content + "</div>")
             else:
                 file.write(f"<div class = '{prefix}'><h1>{prefix} Report</h1><h2>Report Generated: {formatted_date}</h2>" + content + "</div>")
     except Exception as e:
@@ -153,7 +157,7 @@ def get_full_html(temp_file, prefix):
 def get_temp_html(df, prefix):
     try:
         with tempfile.NamedTemporaryFile(suffix='.html', prefix = prefix, delete_on_close=False) as temp:
-            temp.write(build_table(df, 'blue_dark',  index = False, font_size = "25px",width = "300px", padding = "15px", border_bottom_color="white", text_align="center").encode('utf-8'))
+            temp.write(build_table(df, 'blue_dark',  index = False, font_size = "25px", width = "721.5px", padding = "15px", border_bottom_color="white", text_align="center").encode('utf-8'))
             temp.flush()
             return get_full_html(temp.name, prefix)
     except Exception as e:
