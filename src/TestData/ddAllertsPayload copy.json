@@ -1,0 +1,504 @@
+{
+    "alert_list": [
+        {
+            "id": "p0-213",
+            "alert_id": "p0-213",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1620375878,
+            "clear_epoch": 1620413219,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "active",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-213"
+                }
+            ]
+        },
+        {
+            "id": "p0-214",
+            "alert_id": "p0-214",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1620560024,
+            "clear_epoch": 1620684639,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-214"
+                }
+            ]
+        },
+        {
+            "id": "p0-215",
+            "alert_id": "p0-215",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1620834358,
+            "clear_epoch": 1620858326,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "active",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-215"
+                }
+            ]
+        },
+        {
+            "id": "p0-216",
+            "alert_id": "p0-216",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1620858388,
+            "clear_epoch": 1620858461,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-216"
+                }
+            ]
+        },
+        {
+            "id": "p0-217",
+            "alert_id": "p0-217",
+            "event_id": "EVT-NETM-00009",
+            "name": "DNSUnresponsive",
+            "alert_gen_epoch": 1621087675,
+            "clear_epoch": 1621094225,
+            "msg": "Unable to communicate with configured DNS.",
+            "additional_info": "DNS-Servers = see output from net show dns",
+            "clear_additional_info": "DNS-Servers = see output from net show dns",
+            "status": "cleared",
+            "class": "Network",
+            "severity": "CRITICAL",
+            "action": "\n        Check the network path and the DNS server to establish communication or remove the DNS entries and add host entries to the hosts table.\n        If this problem persists, contact your contracted support provider or visit us online at https://support.emc.com.\n    ",
+            "description": "\n        No DNS servers responded to a DNS query. This may be caused by a network failure or a DNS server problem.\n        System functions that require name address resolution will fail.\n    ",
+            "node_id": 0,
+            "snmp_notification_oid": "7504\n",
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-217"
+                }
+            ]
+        },
+        {
+            "id": "p0-218",
+            "alert_id": "p0-218",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1621165856,
+            "clear_epoch": 1621296458,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-218"
+                }
+            ]
+        },
+        {
+            "id": "p0-220",
+            "alert_id": "p0-220",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1621412731,
+            "clear_epoch": 1621633930,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-220"
+                }
+            ]
+        },
+        {
+            "id": "p0-222",
+            "alert_id": "p0-222",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1621678820,
+            "clear_epoch": 1621892467,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-222"
+                }
+            ]
+        },
+        {
+            "id": "p0-225",
+            "alert_id": "p0-225",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1621908786,
+            "clear_epoch": 1621976970,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-225"
+                }
+            ]
+        },
+        {
+            "id": "p0-226",
+            "alert_id": "p0-226",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1621977034,
+            "clear_epoch": 1621977097,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-226"
+                }
+            ]
+        },
+        {
+            "id": "p0-227",
+            "alert_id": "p0-227",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1621977726,
+            "clear_epoch": 1621977823,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-227"
+                }
+            ]
+        },
+        {
+            "id": "p0-228",
+            "alert_id": "p0-228",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1621977917,
+            "clear_epoch": 1621977993,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-228"
+                }
+            ]
+        },
+        {
+            "id": "p0-229",
+            "alert_id": "p0-229",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1621986371,
+            "clear_epoch": 1622029467,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-229"
+                }
+            ]
+        },
+        {
+            "id": "p0-230",
+            "alert_id": "p0-230",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1622103312,
+            "clear_epoch": 1623094023,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-230"
+                }
+            ]
+        },
+        {
+            "id": "p0-232",
+            "alert_id": "p0-232",
+            "event_id": "EVT-NETM-00009",
+            "name": "DNSUnresponsive",
+            "alert_gen_epoch": 1622852541,
+            "clear_epoch": 1622853617,
+            "msg": "Unable to communicate with configured DNS.",
+            "additional_info": "DNS-Servers = see output from net show dns",
+            "clear_additional_info": "DNS-Servers = see output from net show dns",
+            "status": "cleared",
+            "class": "Network",
+            "severity": "CRITICAL",
+            "action": "\n        Check the network path and the DNS server to establish communication or remove the DNS entries and add host entries to the hosts table.\n        If this problem persists, contact your contracted support provider or visit us online at https://support.emc.com.\n    ",
+            "description": "\n        No DNS servers responded to a DNS query. This may be caused by a network failure or a DNS server problem.\n        System functions that require name address resolution will fail.\n    ",
+            "node_id": 0,
+            "snmp_notification_oid": "7504\n",
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-232"
+                }
+            ]
+        },
+        {
+            "id": "p0-233",
+            "alert_id": "p0-233",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1623371690,
+            "clear_epoch": 1623403317,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-233"
+                }
+            ]
+        },
+        {
+            "id": "p0-234",
+            "alert_id": "p0-234",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1623506730,
+            "clear_epoch": 1624409823,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-234"
+                }
+            ]
+        },
+        {
+            "id": "p0-236",
+            "alert_id": "p0-236",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1624822020,
+            "clear_epoch": 1625852967,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-236"
+                }
+            ]
+        },
+        {
+            "id": "p0-238",
+            "alert_id": "p0-238",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1625932170,
+            "clear_epoch": 1626135732,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-238"
+                }
+            ]
+        },
+        {
+            "id": "p0-239",
+            "alert_id": "p0-239",
+            "object_id": "FilesysType=2",
+            "event_id": "EVT-SPACE-00004",
+            "name": "SpaceOver90Percent",
+            "alert_gen_epoch": 1626153743,
+            "clear_epoch": 1627326574,
+            "msg": "Space usage in Data Collection has exceeded 90% threshold.",
+            "additional_info": "SpaceUsage(%)=90",
+            "clear_additional_info": "SpaceUsage(%)=89",
+            "status": "cleared",
+            "class": "Filesystem",
+            "severity": "CRITICAL",
+            "action": "\n        Free space in the specified tier or unit by deleting unneeded items and running cleaning on the tier. \n        If items cannot be deleted, storage must be added to the appropriate tier. If you need assistance \n        recovering space, contact your contracted support provider or visit us online at https://support.emc.com.\n        To purchase additional storage, please contact your EMC sales representative or channel partner.\n    ",
+            "description": "\n        Space usage has exceeded the configured critical threshold capacity\n        Lack of space can result in loss of file system functionality or missing important logs.\n    ",
+            "node_id": 0,
+            "link": [
+                {
+                    "rel": "self",
+                    "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts/p0-239"
+                }
+            ]
+        }
+    ],
+    "paging_info": {
+        "current_page": 0,
+        "page_entries": 20,
+        "total_entries": 1000,
+        "page_size": 20,
+        "page_links": [
+            {
+                "rel": "first",
+                "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts?page=0&size=20"
+            },
+            {
+                "rel": "last",
+                "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts?page=49&size=20"
+            },
+            {
+                "rel": "next",
+                "href": "/rest/v1.0/dd-systems/6a98236467eb8b69%3A50f71e08a2811100/alerts?page=1&size=20"
+            }
+        ]
+    }
+}
