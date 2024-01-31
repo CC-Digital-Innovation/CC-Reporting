@@ -9,22 +9,23 @@ from copy import deepcopy
 
 
 # Initialize variables for data extraction of multiple file test
+file_path = "TestData/"
+dd_fileName = 'ddAllertsPayload.json'
+dd_fileName_copy = 'ddAllertsPayload copy.json'
+pure_fileName = 'purealert.json'
+unity_fileName = 'unityalert.json'
+unity_alertcopy = 'unityalert copy.json'
+purealertcopy = 'purealert copy.json'
+fileArray = [dd_fileName, pure_fileName, unity_fileName, purealertcopy, unity_alertcopy, dd_fileName_copy]
+number_of_files = len(fileArray)
+
+# Initialize variables for data extraction of single file test
 # file_path = "TestData/"
 # dd_fileName = 'ddAllertsPayload.json'
 # pure_fileName = 'purealert.json'
 # unity_fileName = 'unityalert.json'
-# unity_alertcopy = 'unityalert copy.json'
-# purealertcopy = 'purealert copy.json'
-# fileArray = [dd_fileName, pure_fileName, unity_fileName, purealertcopy, unity_alertcopy]
+# fileArray = [dd_fileName, pure_fileName, unity_fileName]
 # number_of_files = len(fileArray)
-
-# Initialize variables for data extraction of single file test
-file_path = "TestData/"
-dd_fileName = 'ddAllertsPayload.json'
-pure_fileName = 'purealert.json'
-unity_fileName = 'unityalert.json'
-fileArray = [dd_fileName, pure_fileName, unity_fileName]
-number_of_files = len(fileArray)
 
 # Load json file into object
 def get_json_data(file_name, file_path):
@@ -240,7 +241,7 @@ def get_temp_html(df, prefix, num_rows, num_cols, longMessage, column_widths, to
         print("max_width: ", max_width)
         px_column_widths = [str(int(width)) + "px" for width in column_widths]
         print("px_column_widths: ", px_column_widths)
-        with tempfile.NamedTemporaryFile(suffix='.html', prefix = prefix, delete_on_close=False) as temp:
+        with tempfile.NamedTemporaryFile(suffix='.html', prefix = prefix, delete = False) as temp:
             print("prefix: ", prefix, "\n","total length: ", total_length, "\n", "pixel width: ", pixel_width, "\n", column_widths)
             if num_rows == 1 and num_cols == 1:
                 temp.write(build_table(df, 'blue_dark',  index = False, font_size = "25px",width_dict=px_column_widths, padding = "15px", border_bottom_color="white", text_align="center").encode('utf-8'))
@@ -252,14 +253,14 @@ def get_temp_html(df, prefix, num_rows, num_cols, longMessage, column_widths, to
                 temp.write(build_table(df, 'blue_dark',  index = False, font_size = "25px",width_dict=px_column_widths, padding = "15px", border_bottom_color="white", text_align="center").encode('utf-8'))
                 temp.flush()
             return get_full_html(temp.name, prefix, num_rows, num_cols, longMessage, total_length, pixel_width)
-    except Exception as e:
-        return f"An error occurred: {e}" 
+    finally:
+        temp.close()
     
 
 def get_temp_csv(df, prefix, num_rows, num_cols, lenOfMessage, column_widths, total_length, pixel_width):
     #create temporary csv file
     try:
-        with tempfile.NamedTemporaryFile(suffix='.csv', prefix = prefix, delete_on_close=False) as temp:
+        with tempfile.NamedTemporaryFile(suffix='.csv', prefix = prefix, delete = False) as temp:
             if num_rows == 1 and num_cols == 1:
                 df.to_csv(temp.name, index=False, header=True)
                 temp_df = pd.read_csv(temp.name)
@@ -273,10 +274,8 @@ def get_temp_csv(df, prefix, num_rows, num_cols, lenOfMessage, column_widths, to
                 temp_df = pd.read_csv(temp.name)
                 longMessage = True
             return get_temp_html(temp_df, prefix, num_rows, num_cols, longMessage, column_widths, total_length, pixel_width)
-
-        
-    except Exception as e:
-        return f"An error occurred: {e}"
+    finally:
+        temp.close()
 
 
     
@@ -393,10 +392,12 @@ if __name__ == "__main__":
         pure_df = get_pure_active_alerts(pure_data)
         unity_df = get_unity_active_alerts(unity_data)
                 # if number of files is greater than 3
-                # pure_data_copy = get_json_data(file_name = purealertcopy, file_path= file_path)
-                # pure_df_copy = get_pure_active_alerts(pure_data_copy)
-                # unity_data_copy = get_json_data(file_name = unity_alertcopy, file_path= file_path)
-                # unity_df_copy = get_unity_active_alerts(unity_data_copy)
+        pure_data_copy = get_json_data(file_name = purealertcopy, file_path= file_path)
+        pure_df_copy = get_pure_active_alerts(pure_data_copy)
+        unity_data_copy = get_json_data(file_name = unity_alertcopy, file_path= file_path)
+        unity_df_copy = get_unity_active_alerts(unity_data_copy)
+        dd_data_copy = get_json_data(file_name = dd_fileName_copy, file_path= file_path)
+        dd_df_copy = get_dd_active_alerts(dd_data_copy)
 
     except Exception as e:
         print(f"An error occurred: {e}")
