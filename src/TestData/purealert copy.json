@@ -1,0 +1,41 @@
+[
+    {
+        "category": "array", 
+        "code": 168,
+        "actual": null,
+        "opened": "2020-05-08T01:43:13Z",
+        "component_type": "array",
+        "id": 10213595,
+        "current_severity": "warning", 
+        "details":"",
+        "expected": null,
+        "event": "EULA not accepted", 
+        "component_name": "NJPure"
+    },
+    {
+        "category": "software",
+        "code": 105,
+        "actual": null,
+        "opened": "2020-05-08T01:54:59Z",
+        "component_type": "update", 
+        "id": 10213600,
+        "current_severity": "info",
+        "details": "",
+        "expected": null,
+        "event": "update completed", 
+        "component_name": "upgrades"
+    },
+    {
+        "category": "array",
+        "code": 42,
+        "actual": null,
+        "opened": "2020-05-23T13:40:35Z", 
+        "component_type": "hardware", 
+        "id": 10218811,
+        "current_severity": "warning",
+        "details": "",
+        "expected": null,
+        "event": "failure",
+        "component_name": "cte.ethe"
+    }
+]
