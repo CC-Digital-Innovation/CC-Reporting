@@ -7,15 +7,16 @@ import os
 import json
 import atexit
 import ssl
-from vmware.vapi.vsphere.client import create_vsphere_client
-
+import pandas as pd
+import os
 
 # Determine what the criteria for an alarm to go off should be
 # These integers represent the percentage of memory, cpu, or storage capacity
 # This integer acts as a threshold for the alarm to go off
-cpu_threshold = 90
-memory_threshold = 90
-storage_threshold = 90
+# Threshold set to 3% for testing purposes only, so I can see the alarm go off
+cpu_threshold = 3
+memory_threshold = 3
+storage_threshold = 3
 
 
 
@@ -122,7 +123,7 @@ def create_memory_alarm(service_instance, memory_threshold):
     AlarmSpec.dynamicType = None
     AlarmSpec.dynamicProperty = None
     AlarmSpec.enabled = True
-    AlarmSpec.name = "Custom Memory Usage Alarm (TEST)"
+    AlarmSpec.name = f"Custom Memory Usage Alarm (TEST, {memory_threshold})"
     AlarmSpec.description = f"This is a custom memory alarm that goes off when memory exceeds {memory_threshold}% of capacity, please add more memory to this host"
     # Create a new MetricAlarmExpression
     metric_alarm_expression = vim.alarm.MetricAlarmExpression(
@@ -163,7 +164,7 @@ def create_cpu_alarm(service_instance, cpu_threshold):
     AlarmSpec.dynamicType = None
     AlarmSpec.dynamicProperty = None
     AlarmSpec.enabled = True
-    AlarmSpec.name = "Custon CPU Usage Alarm (TEST)"
+    AlarmSpec.name = f"Custon CPU Usage Alarm (TEST, {cpu_threshold})"
     AlarmSpec.description = f"This is a custom CPU alarm that goes off when CPU usage exceeds {cpu_threshold}% of capacity, please add more CPU's to this host"
     
     # Create a new MetricAlarmExpression for CPU usage
@@ -204,7 +205,7 @@ def create_storage_alert(service_instance, storage_threshold):
     AlarmSpec.dynamicType = None
     AlarmSpec.dynamicProperty = None
     AlarmSpec.enabled = True
-    AlarmSpec.name = "Custom Datastore Usage Alarm (TEST)"
+    AlarmSpec.name = f"Custom Datastore Usage Alarm (TEST,{storage_threshold})"
     AlarmSpec.description = f"This is a custom disk usage alarm that goes off when disk usage exceeds {storage_threshold}% of capacity, please add more storage to this host"
     
     # Create a new MetricAlarmExpression for disk usage
@@ -238,9 +239,55 @@ def create_storage_alert(service_instance, storage_threshold):
     )
     alarm_manager.Create(content.rootFolder, AlarmSpec)
 
+def get_report(alert_object):
+    # Factor payload into report style table
+    # Load alert object
+    # Create a table report
+    active_alerts = []
+    substring = "(TEST, 3)"
+    for alert in alert_object:
+        if alert["severity"] == "CRITICAL" or alert["severity"] == "Warning":
+            if substring in alert["alarm_name"] or "(TEST,3)" in alert["alarm_name"]:
+                alert_report = {}
+                alert_report["Alarm Name"] = alert["alarm_name"]
+                alert_report["Severity"] = alert["severity"]
+                alert_report["Time"] = alert["time"]
+                alert_report["Alarm Description"] = alert["alarm_description"]
+                active_alerts.append(alert_report)
+                
+    return active_alerts
+
+
+def get_df_json(report_data):
+    try:
+        df = pd.DataFrame(report_data)
+        df["Time"] = pd.to_datetime(df["Time"])
+        df['Time'] = df['Time'].dt.tz_convert('US/Pacific')
+        df['Time'] = df['Time'].dt.strftime('%Y-%m-%d %H:%M:%S %Z')
+
+        df.to_json('vcenter_alerts.json', orient='records', indent=4)
+        return df
+    except Exception as e:
+        print(e)
+
+
+
+
+
+
 if __name__ == "__main__":
-    print(json.dumps(get_alarms(si), indent=4, sort_keys=True))
-    create_memory_alarm(si, cpu_threshold)
-    create_cpu_alarm(si, memory_threshold)
-    create_storage_alert(si, storage_threshold)
+    # Get alarms gets all the active alarms from the vCenter server
+    # print(json.dumps(get_alarms(si), indent=4, sort_keys=True))
+    
+    # Alarm definitions below(Threshold set at 3% For testing purposes only)
+    # Descriptions can be changed to fit the need of the report and alarm
+
+    # create_memory_alarm(si, memory_threshold)
+    # create_cpu_alarm(si, cpu_threshold)
+    # create_storage_alert(si, storage_threshold)
+
+    print(get_df_json(get_report(get_alarms(si))))
+    # print(get_temp_df_table(get_report(get_alarms(si))))
+    # print(get_styled_table(get_temp_df_table(get_report(get_alarms(si)))))
+    # print(json.dumps(get_report(get_alarms(si)), indent=4, sort_keys=True))
     atexit.register(Disconnect, si)
