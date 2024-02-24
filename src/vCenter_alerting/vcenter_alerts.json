@@ -1,0 +1,20 @@
+[
+    {
+        "Alarm Name":"Custom Memory Usage Alarm (TEST, 3)",
+        "Severity":"CRITICAL",
+        "Time":"2024-02-22 09:34:17 PST",
+        "Alarm Description":"This is a custom memory alarm that goes off when memory exceeds 3% of capacity, please add more memory to this host"
+    },
+    {
+        "Alarm Name":"Custon CPU Usage Alarm (TEST, 3)",
+        "Severity":"CRITICAL",
+        "Time":"2024-02-22 09:34:17 PST",
+        "Alarm Description":"This is a custom CPU alarm that goes off when CPU usage exceeds 3% of capacity, please add more CPU's to this host"
+    },
+    {
+        "Alarm Name":"Custom Datastore Usage Alarm (TEST,3)",
+        "Severity":"CRITICAL",
+        "Time":"2024-02-22 09:34:06 PST",
+        "Alarm Description":"This is a custom disk usage alarm that goes off when disk usage exceeds 3% of capacity, please add more storage to this host"
+    }
+]
