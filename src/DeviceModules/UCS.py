@@ -63,13 +63,13 @@ def cleanse_ucs_faults(ucs_faults: List[UCSFault.FaultInst]) -> List[Alert]:
     # Put all the faults into a list of alerts.
     all_alerts = list[Alert]()
     for fault in ucs_faults:
-        # Extract information from the fault into the alert object and add it to the returen list.
+        # Extract information from the fault into the alert object and add it to the return list.
         curr_alert = Alert(description=f"{fault.descr} | Cause: {fault.cause} | Code: {fault.code}",
                            affected_device=fault.dn, severity=fault.severity)
         all_alerts.append(curr_alert)
     
     # Return the faults as a list of alerts.
-        return all_alerts
+    return all_alerts
 
 
 def get_alerts() -> List[Alert]:
