@@ -1,3 +1,6 @@
+logs/
+fake_payloads/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
