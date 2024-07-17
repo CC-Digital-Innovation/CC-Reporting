@@ -1,7 +1,7 @@
 import requests
 import json
 from loguru import logger
-from src import storage_device
+from src.storage_device import StorageDevice
 
 GB = ((1/1024)/1024)
 
@@ -28,4 +28,4 @@ def get_capacity(creds, ip):
         total = (float(system.json()['physical_capacity']['total'])*GB)/1024
         free = (float(system.json()['physical_capacity']['available'])*GB)/1024
 
-        return storage_device.StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))
+        return StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))
