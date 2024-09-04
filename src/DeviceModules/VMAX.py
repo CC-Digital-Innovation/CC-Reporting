@@ -2,17 +2,17 @@ import os
 import subprocess
 import io
 from loguru import logger
-from src import storage_device
+from config import classes
 
 GB = ((1/1024)/1024)
 
 # cliname is defined in symcli configuration files. sid is last three digits of serial number
-def get_capacity(cliname, sid):
+def get_capacity(device: classes.Device):
     #Runs symcli commands to retrieve data. NO IP, USER/PASS REQUIRED HERE
     logger.info('Initializing symcli settings and discovery')
-    os.environ[f"SYMCLI_CONNECT"] = cliname
+    os.environ[f"SYMCLI_CONNECT"] = device.snowname
     subprocess.run(["symcfg", "discover"])
-    symcli = subprocess.run(["symcfg", "-sid", f"{sid}", "list", "-pool", "-thin",  "-TB"], capture_output=True)
+    symcli = subprocess.run(["symcfg", "-sid", f"{device.vmaxsid}", "list", "-pool", "-thin",  "-TB"], capture_output=True)
     symcliout = symcli.stdout.decode()
     logger.debug(f'symcli error: {symcli.stderr}')
 
@@ -27,4 +27,4 @@ def get_capacity(cliname, sid):
                 used  = float(split[3])*1024
                 free  = float(split[2])*1024
                 total = float(split[1])*1024
-    return storage_device.StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))
+    return classes.StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))

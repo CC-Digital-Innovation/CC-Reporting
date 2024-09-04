@@ -3,6 +3,7 @@ import urllib3
 from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
 import dotenv
+import requests
 import os
 import json
 import atexit

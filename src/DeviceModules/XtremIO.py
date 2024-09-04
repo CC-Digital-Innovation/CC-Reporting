@@ -1,12 +1,12 @@
 import requests
 import json
 from loguru import logger
-from src import storage_device
+from config import classes
 
 GB = ((1/1024)/1024)
 
 
-def get_capacity(usr, passw, ip):
+def get_capacity(device: classes.Device):
     #initialize REST header and device data
     headers = {
         'Content-Type': 'application/json'
@@ -14,7 +14,7 @@ def get_capacity(usr, passw, ip):
 
     #Get and parse results from xtremio clusters endpoint
     logger.info('Getting cluster data from XtremIO API')
-    r = requests.get(f'https://{ip}/api/json/v3/types/clusters/1', auth=(usr, passw), headers=headers, verify =False)
+    r = requests.get(f'https://{device.ip}/api/json/v3/types/clusters/1', auth=(device.username, device.password), headers=headers, verify =False)
     logger.debug(f'API response code: {r}')
     total = r.json()['content']['ud-ssd-space']
     totuse = r.json()['content']['logical-space-in-use']
@@ -28,4 +28,4 @@ def get_capacity(usr, passw, ip):
     #calls helper function to make dictionary and adds to running list
     logger.info('Compiling data into dictionary')
 
-    return storage_device.StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))
+    return classes.StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))

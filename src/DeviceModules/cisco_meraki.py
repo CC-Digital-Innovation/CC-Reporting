@@ -3,7 +3,7 @@ from typing import List
 
 from dotenv import load_dotenv
 import meraki
-from pydantic import BaseModel
+from config import classes
 
 
 # Load environment variables.
@@ -17,20 +17,6 @@ MERAKI_DASHBOARD = meraki.DashboardAPI(api_key=MERAKI_API_KEY,
                                        print_console=False,
                                        suppress_logging=True)
 
-
-class Alert(BaseModel):
-    """
-    Represents an alert that exists on a machine.
-
-    Members:
-        description (str): The description of the alert.
-        affected_device (str): The device with the alert.
-        severity (str): The severity of the alert.
-    """
-
-    description: str
-    affected_device: str
-    severity: str
 
 
 def list_meraki_network_ids(organization_id: str) -> List[str]:
@@ -76,7 +62,7 @@ def get_meraki_organization_alerts(network_ids: List[str]) -> List[dict]:
     return raw_meraki_alerts
 
 
-def cleanse_meraki_organization_alerts(meraki_organization_alerts: List[dict]) -> List[Alert]:
+def cleanse_meraki_organization_alerts(meraki_organization_alerts: List[dict]) -> List[classes.Alert]:
     """
     Converts the provided list of meraki organization alert dictionaries into a list of Alert objects.
 
@@ -88,10 +74,10 @@ def cleanse_meraki_organization_alerts(meraki_organization_alerts: List[dict]) -
     """
 
     # Put all the alert dictionaries into a list of alert objects.
-    all_alerts = list[Alert]()
+    all_alerts = list[classes.Alert]()
     for org_alert_dict in meraki_organization_alerts:
         # Extract information from the dictionary into the alert object and add it to the return list.
-        curr_alert = Alert(description=f"Category: {org_alert_dict['category']} | Type: {org_alert_dict['type']}",
+        curr_alert = classes.Alert(description=f"Category: {org_alert_dict['category']} | Type: {org_alert_dict['type']}",
                            affected_device=org_alert_dict['scope']['devices'][0]['name'],
                            severity='info' if org_alert_dict['severity'] is None else org_alert_dict['severity'])
         all_alerts.append(curr_alert)
@@ -100,7 +86,7 @@ def cleanse_meraki_organization_alerts(meraki_organization_alerts: List[dict]) -
     return all_alerts
 
 
-def get_alerts() -> List[Alert]:
+def get_alerts() -> List[classes.Alert]:
     """
     Return a list of the current alerts from a Meraki organization.
 
@@ -116,16 +102,9 @@ def get_alerts() -> List[Alert]:
     # Return the alerts in Meraki as a list of alerts.
     return alerts
 
-
-def main():
-    # Example on getting alerts from a Meraki organization and printing
-    # them to the console.
-    all_meraki_alerts = get_alerts()
-
-    # Print the list of alerts in the Meraki organization.
-    for alert in all_meraki_alerts:
-        print(alert)
-
-
-if __name__ == "__main__":
-    main()
+def get_report(device: classes.Device):
+    alerts = get_alerts(device)
+    rows = []
+    for alert in alerts:
+        rows.append([alert.affected_device, alert.severity, alert.description])
+    return rows
