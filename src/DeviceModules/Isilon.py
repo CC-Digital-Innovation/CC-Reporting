@@ -115,9 +115,10 @@ def get_alerts(device: classes.Device) -> List[classes.Alert]:
     alerts = cleanse_evaluation_results(eval_obj)
     return alerts
 
-def get_report(device: classes.Device):
+def get_report(device: classes.Device, report: classes.Report):
     alerts = get_alerts(device)
-    rows = []
+    alertrows = []
     for alert in alerts:
-        rows.append([alert.affected_device, alert.severity, alert.description])
-    return rows
+        alertrows.append([alert.affected_device, alert.severity, alert.description])
+    report.rows = alertrows
+    return report

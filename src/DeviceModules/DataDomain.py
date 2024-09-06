@@ -45,7 +45,7 @@ def get_alerts(ip, creds, headers):
         return {"alerts" : alertslist, "str" : alertsstr}
 
 
-def get_report(device: classes.Device):
+def get_report(device: classes.Device, report: classes.Report):
         headers = {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -55,6 +55,7 @@ def get_report(device: classes.Device):
         #alerts = get_alerts(device.ip, creds, headers)
         # alerts['alerts'].len(), alerts['str']
         row = [caps.used_storage, caps.total_storage, caps.free_storage,"alert data here", "alert data here"]
-        print(row)
-        return row
+        curr_rows = report.rows
+        report.rows = curr_rows.append(row)
+        return report
 

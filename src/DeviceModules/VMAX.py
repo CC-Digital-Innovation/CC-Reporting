@@ -7,12 +7,12 @@ from config import classes
 GB = ((1/1024)/1024)
 
 # cliname is defined in symcli configuration files. sid is last three digits of serial number
-def get_capacity(device: classes.Device):
+def get_capacity(name, symid):
     #Runs symcli commands to retrieve data. NO IP, USER/PASS REQUIRED HERE
     logger.info('Initializing symcli settings and discovery')
-    os.environ[f"SYMCLI_CONNECT"] = device.snowname
+    os.environ[f"SYMCLI_CONNECT"] = name
     subprocess.run(["symcfg", "discover"])
-    symcli = subprocess.run(["symcfg", "-sid", f"{device.vmaxsid}", "list", "-pool", "-thin",  "-TB"], capture_output=True)
+    symcli = subprocess.run(["symcfg", "-sid", f"{symid}", "list", "-pool", "-thin",  "-TB"], capture_output=True)
     symcliout = symcli.stdout.decode()
     logger.debug(f'symcli error: {symcli.stderr}')
 
@@ -28,3 +28,27 @@ def get_capacity(device: classes.Device):
                 free  = float(split[2])*1024
                 total = float(split[1])*1024
     return classes.StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))
+
+
+def get_alerts(ip, usr, passw , head):
+        #get active alerts
+        alertslist = []
+        alertsstr = ''
+        for alert in alertslist:
+                tempstring = f"{alert['severity']}: {alert['description']}\n"
+                alertsstr = alertsstr + tempstring
+                alertslist.append(tempstring)
+        return {"alerts" : alertslist, "str" : alertsstr}
+
+
+def get_report(device: classes.Device, report: classes.Report):
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        caps = get_capacity(device.snowname, device.vmaxsid)
+        #alerts = get_alerts(device.ip, device.username, device.password, headers)
+        #alerts['str'], len(alerts['alerts'])
+        row = [caps.used_storage, caps.total_storage, caps.free_storage]
+        curr_rows = report.rows
+        report.rows = curr_rows.append(row)
+        return report

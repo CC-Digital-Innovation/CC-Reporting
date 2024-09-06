@@ -58,25 +58,23 @@ module_map = {
         "Isilon"     : Isilon,
         #"Meraki"     : cisco_meraki,
         "Pure"       : Pure,
-        "UCS"        : UCS
-        #"VMAX"       : VMAX,
-        #"XtremIO"    : XtremIO
+        "UCS"        : UCS,
+        "VMAX"       : VMAX,
+        "XtremIO"    : XtremIO
     }
 reports = {
         "DataDomain" : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
         "Isilon"     : classes.Report(['Device', 'Alert Severity', 'Description']),
         "Meraki"     : classes.Report(['Device', 'Alert Severity', 'Description']),
         "Pure"       : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        "UCS"        : classes.Report(['Device', 'Alert Severity', 'Description'])
-        #"VMAX"       : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        #"XtremIO"    : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count'])
+        "UCS"        : classes.Report(['Device', 'Alert Severity', 'Description']),
+        "VMAX"       : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
+        "XtremIO"    : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count'])
     }
 
 for device in devicelist:
     if device.type in module_map.keys():
-        curr_rows = reports[device.type].rows
-        curr_rows.append(module_map[device.type].get_report(device))
-        reports[device.type].rows = curr_rows
+        reports[device.type] = module_map[device.type].get_report(device, reports[device.type])
 
 #step 5 make report from aggregated data
 with tempfile.TemporaryDirectory() as csvdir:
