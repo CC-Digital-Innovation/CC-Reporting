@@ -43,7 +43,7 @@ def get_alerts(ip, payload, header):
         alertslist = []
         alertsstr = ''
         for alert in alertslist:
-                tempstring = f"{alert["current_severity"]}: {alert["event"]} in {alert["component"]}\n"
+                tempstring = f"{alert['current_severity']}: {alert['event']} in {alert['component']}\n"
                 alertsstr = alertsstr + tempstring
                 alertslist.append(tempstring)
         return {"alerts" : alertslist, "str" : alertsstr}
@@ -58,6 +58,6 @@ def get_report(device: classes.Device):
         'password' : device.password
     }
     caps = get_capacity(device.ip, payload, header)
-    alerts = get_alerts(device.ip, payload, header)
-    row = [caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], alerts['alerts'].len()]
+    #alerts = get_alerts(device.ip, payload, header)
+    row = [caps.used_storage, caps.total_storage, caps.free_storage,"alert data here", "alert data here"]
     return row

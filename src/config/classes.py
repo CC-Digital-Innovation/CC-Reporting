@@ -36,6 +36,7 @@ class Report:
 
     def __init__(self, headerrow):
         self.headerRow = headerrow
+        self.rows = []
 
     def makecsv():
         pass
@@ -43,7 +44,7 @@ class Report:
         pass
 
 
-class Device(BaseModel):
+class Device:
     """Class to store Device information to easily pass along to other functions"""
     snowname: str
     username: str = None
