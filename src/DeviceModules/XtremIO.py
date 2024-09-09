@@ -25,7 +25,7 @@ def get_capacity(ip, usr, passw, head):
     #calls helper function to make dictionary and adds to running list
     logger.info('Compiling data into dictionary')
 
-    return classes.StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))
+    return classes.StorageDevice(round(used*GB, 3), round(float(total*GB), 3), GB, round(free*GB, 3))
 
 def get_alerts(ip, usr, passw , head):
         r = requests.get(f'https://{ip}/api/json/v3/types/alerts', auth=(usr, passw), headers=head, verify =False)
@@ -46,6 +46,8 @@ def get_report(device: classes.Device, report: classes.Report):
         caps = get_capacity(device.ip, device.username, device.password, headers)
         alerts = get_alerts(device.ip, device.username, device.password, headers)
         row = [caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
-        curr_rows = report.rows
-        report.rows = curr_rows.append(row)
+        if report.rows:
+                report.rows = report.rows.append(row)
+        else:
+                report.rows = [row]
         return report

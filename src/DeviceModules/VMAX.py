@@ -27,7 +27,9 @@ def get_capacity(name, symid):
                 used  = float(split[3])*1024
                 free  = float(split[2])*1024
                 total = float(split[1])*1024
-    return classes.StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))
+                return classes.StorageDevice(round(used, 3), round(total, 3), GB, round(free, 3))
+    
+    return classes.StorageDevice(0, 0, GB, 0)
 
 
 def get_alerts(ip, usr, passw , head):
@@ -49,6 +51,8 @@ def get_report(device: classes.Device, report: classes.Report):
         #alerts = get_alerts(device.ip, device.username, device.password, headers)
         #alerts['str'], len(alerts['alerts'])
         row = [caps.used_storage, caps.total_storage, caps.free_storage]
-        curr_rows = report.rows
-        report.rows = curr_rows.append(row)
+        if report.rows:
+                report.rows = report.rows.append(row)
+        else:
+            report.rows = [row]
         return report

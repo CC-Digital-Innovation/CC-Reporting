@@ -55,7 +55,9 @@ def get_report(device: classes.Device, report: classes.Report):
         #alerts = get_alerts(device.ip, creds, headers)
         # alerts['alerts'].len(), alerts['str']
         row = [caps.used_storage, caps.total_storage, caps.free_storage,"alert data here", "alert data here"]
-        curr_rows = report.rows
-        report.rows = curr_rows.append(row)
+        if report.rows:
+                report.rows = report.rows.append(row)
+        else:
+                report.rows = [row]
         return report
 

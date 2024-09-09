@@ -60,6 +60,8 @@ def get_report(device: classes.Device, report: classes.Report):
     caps = get_capacity(device.ip, payload, header)
     #alerts = get_alerts(device.ip, payload, header)
     row = [caps.used_storage, caps.total_storage, caps.free_storage,"alert data here", "alert data here"]
-    curr_rows = report.rows
-    report.rows = curr_rows.append(row)
+    if report.rows:
+            report.rows = report.rows.append(row)
+    else:
+            report.rows = [row]
     return report

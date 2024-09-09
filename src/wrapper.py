@@ -19,7 +19,6 @@ def email_report(directory):
     uploadFiles = []
     table_titles = []
     for file in os.listdir(directory):
-        print(file)
         table_titles.append(file.split(".")[0])
         uploadFiles.append(('files', open(os.path.join(directory, file), "rb")))
 
@@ -80,7 +79,6 @@ for device in devicelist:
 with tempfile.TemporaryDirectory() as csvdir:
     for key in reports.keys():
         temprep = reports[key]
-        print(temprep.rows)
         if temprep.rows:
             with open(os.path.join(csvdir, f"{key}.csv") , "w") as file:
                 csvwrite = csv.writer(file)
