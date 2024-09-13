@@ -68,6 +68,6 @@ def get_report(device: classes.Device, report: classes.Report):
     alerts = get_alerts(device)
     alertrows = []
     for alert in alerts:
-        alertrows.append([alert.affected_device, alert.severity, alert.description])
+        alertrows.append([device.snowname, alert.affected_device, alert.severity, alert.description])
     report.rows = alertrows
     return report

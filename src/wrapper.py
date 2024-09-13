@@ -4,9 +4,13 @@ import tempfile
 import os
 import csv
 import json
+import sys
 import pysnow
 import configparser
 import requests
+from loguru import logger
+import urllib3
+urllib3.disable_warnings()
 
 #Set up globals
 CONFIG = configparser.ConfigParser()
@@ -36,11 +40,18 @@ def email_report(directory):
     }
 
     r = requests.request("POST", url = URL, headers=header, data = Data, files=uploadFiles)
-    print(r.json())
+    logger.debug(r.json())
     
+def logger_init():
+    logger.remove()
+    logger.add(sys.stderr, colorize=True, level="DEBUG")
+    logger.info("*****************************")
+    logger.info("*********Report Start********")
+    logger.info("*****************************")
 
 
 #Step 1: Get list of devices from noco - for now local list
+logger_init()
 #Step 2: get device data from snow - for now local list
 with open(os.path.join("config", "devices.json"), "r") as devicefile:
     devicedata = json.load(devicefile)
@@ -62,21 +73,22 @@ module_map = {
         "XtremIO"    : XtremIO
     }
 reports = {
-        "DataDomain" : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        "Isilon"     : classes.Report(['Device', 'Alert Severity', 'Description']),
-        "Meraki"     : classes.Report(['Device', 'Alert Severity', 'Description']),
-        "Pure"       : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        "UCS"        : classes.Report(['Device', 'Alert Severity', 'Description']),
-        "VMAX"       : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        "XtremIO"    : classes.Report(['Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count'])
+        "DataDomain" : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
+        "Isilon"     : classes.Report(['Name', 'Device', 'Alert Severity', 'Description']),
+        "Meraki"     : classes.Report(['Name', 'Device', 'Alert Severity', 'Description']),
+        "Pure"       : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
+        "UCS"        : classes.Report(['Name', 'Device', 'Alert Severity', 'Description']),
+        "VMAX"       : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
+        "XtremIO"    : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count'])
     }
 
 for device in devicelist:
     if device.type in module_map.keys():
+        logger.info(f"Starting report for {device.type}")
         try:
             reports[device.type] = module_map[device.type].get_report(device, reports[device.type])
         except Exception as e:
-            print(e)
+            logger.debug(e)
 
 #step 5 make report from aggregated data
 with tempfile.TemporaryDirectory() as csvdir:

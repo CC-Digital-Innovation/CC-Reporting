@@ -45,12 +45,13 @@ def get_alerts(ip, creds, headers):
         alertsstr = ''
         for alert in alerts.json()['alert_list']:
                 if alert:
-                        desc = alert['description'].strip().replace('\n', '').replace('    ', ' ')
-                        tempstring = f"{alert['severity']}: {desc}\n"
+                        desc = alert['description'].strip().replace('\n', '').replace('    ', ' ').strip()
+                        tempstring = f"""{alert['severity']}: {desc}
+"""
                         alertsstr = alertsstr + tempstring
                         alertslist.append(tempstring)
         if alertsstr:
-                return {"alerts" : alertslist, "str" : alertsstr}
+                return {"alerts" : alertslist, "str" : alertsstr.strip()}
         else:
                 return {"alerts" : alertslist, "str" : "No Active Alerts"}
 
@@ -63,7 +64,7 @@ def get_report(device: classes.Device, report: classes.Report):
         creds = {"username":device.username, "password": device.password}
         caps = get_capacity(device.ip, creds, headers)
         alerts = get_alerts(device.ip, creds, headers)
-        row = [caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
+        row = [device.snowname, caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
         if report.rows:
                 report.rows = report.rows.append(row)
         else:

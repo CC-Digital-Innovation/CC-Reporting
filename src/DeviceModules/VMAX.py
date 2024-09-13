@@ -11,7 +11,7 @@ GB = ((1/1024)/1024)
 
 # cliname is defined in symcli configuration files. sid is last three digits of serial number
 def get_capacity(ip, usr, passw, header, sn):
-    now= time.time()
+    now= int(time.time())*1000
     syms = requests.get(f'https://{ip}:8443/univmax/restapi/91/system/symmetrix', auth=(usr, passw), headers=header, verify =False)
     symid = ''
     for sym in syms.json()['symmetrixId']:
@@ -49,11 +49,12 @@ def get_alerts(ip, usr, passw , head):
         for alert in r.json()['alertId']:
             if alert:
                 r3 = requests.get(f'https://{ip}:8443/univmax/restapi/91/system/alert/{alert}', auth=(usr, passw), headers=head, verify =False)
-                tempstring = f"{r3.json()['severity']}: {r3.json()['description']}\n"
+                tempstring = f"""{r3.json()['severity']}: {r3.json()['description']}
+"""
                 alertsstr = alertsstr + tempstring
                 alertslist.append(tempstring)
         if alertsstr:
-            return {"alerts" : alertslist, "str" : alertsstr}
+            return {"alerts" : alertslist, "str" : alertsstr.strip()}
         else:
             return {"alerts" : alertslist, "str" : "No Critical Unacknowledged Alerts"}
 
@@ -64,7 +65,7 @@ def get_report(device: classes.Device, report: classes.Report):
         }
         caps = get_capacity(device.ip, device.username, device.password, headers, device.serial)
         alerts = get_alerts(device.ip, device.username, device.password, headers)
-        row = [caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
+        row = [device.snowname, caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
         if report.rows:
                 report.rows = report.rows.append(row)
         else:
