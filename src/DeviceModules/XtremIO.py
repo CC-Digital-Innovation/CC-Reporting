@@ -3,7 +3,7 @@ import json
 from loguru import logger
 from config import classes
 
-GB = ((1/1024)/1024)
+GB = float((1/1024)/1024)
 
 
 def get_capacity(ip, usr, passw, head):
@@ -21,11 +21,12 @@ def get_capacity(ip, usr, passw, head):
     logger.info('Calculating XtremIO report from raw data')
     used = float(totuse)/float(reduc)
     free=float(total)-used
+    tot= float(total)
 
     #calls helper function to make dictionary and adds to running list
     logger.info('Compiling data into dictionary')
 
-    return classes.StorageDevice(round(used*GB, 3), round(float(total*GB), 3), GB, round(free*GB, 3))
+    return classes.StorageDevice(round(used*GB, 3), round(tot*GB, 3), GB, round(free*GB, 3))
 
 def get_alerts(ip, usr, passw , head):
         r = requests.get(f'https://{ip}/api/json/v3/types/alerts', auth=(usr, passw), headers=head, verify =False)
@@ -33,10 +34,14 @@ def get_alerts(ip, usr, passw , head):
         alertslist = []
         alertsstr = ''
         for alert in alertslist:
-                tempstring = f"{alert['severity']}: {alert['description']}\n"
-                alertsstr = alertsstr + tempstring
-                alertslist.append(tempstring)
-        return {"alerts" : alertslist, "str" : alertsstr}
+                if alert:
+                        tempstring = f"{alert['severity']}: {alert['description']}\n"
+                        alertsstr = alertsstr + tempstring
+                        alertslist.append(tempstring)
+        if alertsstr:
+            return {"alerts" : alertslist, "str" : alertsstr}
+        else:
+            return {"alerts" : alertslist, "str" : "No Active Alerts"}
 
 
 def get_report(device: classes.Device, report: classes.Report):

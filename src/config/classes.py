@@ -50,7 +50,7 @@ class Device:
     username: str = None
     password: str = None
     ip:       str = None
-    vmaxsid:  str = None
+    serial:  str = None
     snowdata: dict = None
     type: str = None
 
@@ -61,6 +61,6 @@ class Device:
         self.username = data['username'] #placeholder
         self.password = data['password'] #placeholder
         self.ip       = data['ip'] #placeholder
-        self.vmaxsid  = data['serialnum'][-3:] #placeholder
+        self.serial  = data['serialnum'] #placeholder
 
     

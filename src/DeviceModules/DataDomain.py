@@ -5,6 +5,7 @@ from config import classes
 import csv
 
 GB = ((1/1024)/1024)
+NEWLINE= "\n"
 
 #Get Auth token
 def ddauth(ip, creds, headers):
@@ -36,13 +37,22 @@ def get_alerts(ip, creds, headers):
         #add response token to headers
         headers['X-DD-AUTH-TOKEN']=ddauth(ip, creds, headers)
         #get active alerts
+        params = {
+                "filter" : "status=active"
+        }
+        alerts = requests.get(f'https://{ip}:3009/rest/v1.0/dd-systems/0/alerts' , params=params, headers=headers, verify =False)
         alertslist = []
         alertsstr = ''
-        for alert in alertslist:
-                tempstring = f"{alert['severity']}: {alert['description']}\n"
-                alertsstr = alertsstr + tempstring
-                alertslist.append(tempstring)
-        return {"alerts" : alertslist, "str" : alertsstr}
+        for alert in alerts.json()['alert_list']:
+                if alert:
+                        desc = alert['description'].strip().replace('\n', '').replace('    ', ' ')
+                        tempstring = f"{alert['severity']}: {desc}\n"
+                        alertsstr = alertsstr + tempstring
+                        alertslist.append(tempstring)
+        if alertsstr:
+                return {"alerts" : alertslist, "str" : alertsstr}
+        else:
+                return {"alerts" : alertslist, "str" : "No Active Alerts"}
 
 
 def get_report(device: classes.Device, report: classes.Report):
@@ -52,9 +62,8 @@ def get_report(device: classes.Device, report: classes.Report):
                 }
         creds = {"username":device.username, "password": device.password}
         caps = get_capacity(device.ip, creds, headers)
-        #alerts = get_alerts(device.ip, creds, headers)
-        # alerts['alerts'].len(), alerts['str']
-        row = [caps.used_storage, caps.total_storage, caps.free_storage,"alert data here", "alert data here"]
+        alerts = get_alerts(device.ip, creds, headers)
+        row = [caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
         if report.rows:
                 report.rows = report.rows.append(row)
         else:

@@ -73,7 +73,10 @@ reports = {
 
 for device in devicelist:
     if device.type in module_map.keys():
-        reports[device.type] = module_map[device.type].get_report(device, reports[device.type])
+        try:
+            reports[device.type] = module_map[device.type].get_report(device, reports[device.type])
+        except Exception as e:
+            print(e)
 
 #step 5 make report from aggregated data
 with tempfile.TemporaryDirectory() as csvdir:
