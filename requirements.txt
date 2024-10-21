@@ -1,0 +1,11 @@
+loguru
+meraki
+pysnow
+python-dotenv
+requests
+isilon_sdk
+ucsmsdk
+pyvmomi
+pandas
+configparser
+git+https://github.com/vmware/vsphere-automation-sdk-python.git
