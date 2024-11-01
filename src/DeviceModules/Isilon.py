@@ -118,7 +118,11 @@ def get_alerts(device: classes.Device) -> List[classes.Alert]:
 def get_report(device: classes.Device, report: classes.Report):
     alerts = get_alerts(device)
     alertrows = []
+    if device.hostname:
+            deviceName = device.hostname
+    else:
+            deviceName = device.snowname
     for alert in alerts:
-        alertrows.append([alert.affected_device, alert.severity, alert.description])
+        alertrows.append([deviceName, alert.affected_device, alert.severity, alert.description])
     report.rows = alertrows
     return report

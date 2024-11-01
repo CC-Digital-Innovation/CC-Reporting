@@ -64,7 +64,11 @@ def get_report(device: classes.Device, report: classes.Report):
         creds = {"username":device.username, "password": device.password}
         caps = get_capacity(device.ip, creds, headers)
         alerts = get_alerts(device.ip, creds, headers)
-        row = [device.snowname, caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
+        if device.hostname:
+                deviceName = device.hostname
+        else:
+                deviceName = device.snowname
+        row = [deviceName, caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
         if report.rows:
                 report.rows = report.rows.append(row)
         else:
