@@ -16,14 +16,12 @@ urllib3.disable_warnings()
 
 #Set up globals from .env
 dotenv.load_dotenv(PurePath(__file__).with_name('.env'))
-
 URL = os.getenv('EMAIL_API_URL')
 EMAILAPI_TOKEN = os.getenv('EMAIL_TOKEN')
 SNOW_INSTANCE = os.getenv('SNOW_INSTANCE')
 SNOW_USERNAME = os.getenv('SNOW_USER')
 SNOW_PASSWORD = os.getenv('SNOW_PASSWORD')
 CMDB_PATH     = os.getenv('CMDB_PATH')
-
 
 snow_client = pysnow.Client(instance=SNOW_INSTANCE, user=SNOW_USERNAME, password=SNOW_PASSWORD)
 
@@ -33,12 +31,12 @@ def query_Device(DeviceName):
     table = snow_client.resource(api_path=CMDB_PATH)
     RPquery = (
         pysnow.QueryBuilder()
-        .field('name').contains(DeviceName)
+        .field('name').equals(DeviceName)
     )
     fetch = table.get(query=RPquery).all()
-    
+
     #Check for results and decrypt password
-    if fetch[0]:
+    if fetch and fetch[0]:
         url = f"https://{SNOW_INSTANCE}.service-now.com/api/fuss2/ci_password/{fetch[0]['sys_id']}/getcipassword"
         header = {
             'Content-Type': 'application/json'
@@ -88,15 +86,17 @@ def logger_init():
 #Step 1: Get list of devices from noco - for now local list
 logger_init()
 #Step 2: get device data from snow - for now local list
-with open(os.path.join("config", "devices.json"), "r") as devicefile:
+with open(os.path.join("src", "devices.json"), "r") as devicefile:
     devicedata = json.load(devicefile)
 
 #step 3: init device list with snow data
 devicelist = []
 for device in devicedata['devices']:
-    snowdevice = query_Device(device['snowName'])
-    if snowdevice:
-        devicelist.append(classes.Device(device['snowName'], snowdevice, device['type']))
+    if device['snowName']:
+        logger.debug(f"Fetching snow data for {device['snowName']}")
+        snowdevice = query_Device(device['snowName'])
+        if snowdevice:
+            devicelist.append(classes.Device(device['snowName'], snowdevice, device['type']))
 #step 4: iterate over list of devices
     #get data from device module
     #aggregate data
