@@ -61,8 +61,11 @@ class Device:
         self.type = type
         self.username = data['u_username'] 
         self.password = data['u_fs_password'] 
-        self.ip       = data['ip_address'].split(':')[0] 
         self.serial  = data['serial_number'] 
         self.hostname = data['u_host_name']
+        if len(data['ip_address'].split('//'))>1:
+            self.ip  = data['ip_address'].split('//')[1].split(':')[0]
+        else:
+            self.ip  = data['ip_address'].split(':')[0]
 
     

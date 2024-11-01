@@ -56,6 +56,7 @@ def email_report(directory):
     uploadFiles = []
     table_titles = []
     for file in os.listdir(directory):
+        logger.debug(f"Attatching {file}")
         table_titles.append(file.split(".")[0])
         uploadFiles.append(('files', open(os.path.join(directory, file), "rb")))
 
