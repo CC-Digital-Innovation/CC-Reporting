@@ -43,13 +43,13 @@ def get_alerts(ip, creds, headers):
         alerts = requests.get(f'https://{ip}:3009/rest/v1.0/dd-systems/0/alerts' , params=params, headers=headers, verify =False)
         alertslist = []
         alertsstr = ''
-        for alert in alerts.json()['alert_list']:
-                if alert:
-                        desc = alert['description'].strip().replace('\n', '').replace('    ', ' ').strip()
-                        tempstring = f"""{alert['severity']}: {desc}
-"""
-                        alertsstr = alertsstr + tempstring
-                        alertslist.append(tempstring)
+        if alerts.json()['paging_info']['total_entries'] >0:
+                for alert in alerts.json()['alert_list']:
+                        if alert:
+                                desc = alert['description'].strip().replace('\n', '').replace('    ', ' ').strip()
+                                tempstring = f"""{alert['severity']}: {desc}\n"""
+                                alertsstr = alertsstr + tempstring
+                                alertslist.append(tempstring)
         if alertsstr:
                 return {"alerts" : alertslist, "str" : alertsstr.strip()}
         else:
@@ -64,7 +64,11 @@ def get_report(device: classes.Device, report: classes.Report):
         creds = {"username":device.username, "password": device.password}
         caps = get_capacity(device.ip, creds, headers)
         alerts = get_alerts(device.ip, creds, headers)
-        row = [device.snowname, caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
+        if device.hostname:
+                deviceName = device.hostname
+        else:
+                deviceName = device.snowname
+        row = [deviceName, caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
         if report.rows:
                 report.rows = report.rows.append(row)
         else:

@@ -47,6 +47,7 @@ class Report:
 class Device:
     """Class to store Device information to easily pass along to other functions"""
     snowname: str
+    hostname: str
     username: str = None
     password: str = None
     ip:       str = None
@@ -58,9 +59,13 @@ class Device:
         self.snowname = name
         self.snowdata = data
         self.type = type
-        self.username = data['username'] #placeholder
-        self.password = data['password'] #placeholder
-        self.ip       = data['ip'] #placeholder
-        self.serial  = data['serialnum'] #placeholder
+        self.username = data['u_username'] 
+        self.password = data['u_fs_password'] 
+        self.serial  = data['serial_number'] 
+        self.hostname = data['u_host_name']
+        if len(data['ip_address'].split('//'))>1:
+            self.ip  = data['ip_address'].split('//')[1].split(':')[0]
+        else:
+            self.ip  = data['ip_address'].split(':')[0]
 
     

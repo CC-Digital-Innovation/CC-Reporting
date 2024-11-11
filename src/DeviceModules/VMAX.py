@@ -60,14 +60,18 @@ def get_alerts(ip, usr, passw , head):
 
 
 def get_report(device: classes.Device, report: classes.Report):
-        headers = {
-            'Content-Type': 'application/json'
-        }
-        caps = get_capacity(device.ip, device.username, device.password, headers, device.serial)
-        alerts = get_alerts(device.ip, device.username, device.password, headers)
-        row = [device.snowname, caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
-        if report.rows:
-                report.rows = report.rows.append(row)
-        else:
-            report.rows = [row]
-        return report
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    caps = get_capacity(device.ip, device.username, device.password, headers, device.serial)
+    alerts = get_alerts(device.ip, device.username, device.password, headers)
+    if device.hostname:
+        deviceName = device.hostname
+    else:
+        deviceName = device.snowname
+    row = [deviceName, caps.used_storage, caps.total_storage, caps.free_storage, alerts['str'], len(alerts['alerts'])]
+    if report.rows:
+            report.rows = report.rows.append(row)
+    else:
+        report.rows = [row]
+    return report

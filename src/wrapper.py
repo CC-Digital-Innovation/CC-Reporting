@@ -1,5 +1,7 @@
 from DeviceModules import Isilon, DataDomain, Pure, UCS, VMAX, XtremIO
 from config import classes
+from pathlib import PurePath
+import dotenv
 import tempfile
 import os
 import csv
@@ -12,26 +14,58 @@ from loguru import logger
 import urllib3
 urllib3.disable_warnings()
 
-#Set up globals
-CONFIG = configparser.ConfigParser()
-CONFIG.read(os.path.join("config", "config.ini"))
-URL = CONFIG.get('Email', 'url')
-EMAILAPI_TOKEN = CONFIG.get('Email', 'Token')
+#Set up globals from .env
+dotenv.load_dotenv(PurePath(__file__).with_name('.env'))
+URL = os.getenv('EMAIL_API_URL')
+EMAILAPI_TOKEN = os.getenv('EMAIL_TOKEN')
+SNOW_INSTANCE = os.getenv('SNOW_INSTANCE')
+SNOW_USERNAME = os.getenv('SNOW_USER')
+SNOW_PASSWORD = os.getenv('SNOW_PASSWORD')
+CMDB_PATH     = os.getenv('CMDB_PATH')
+
+snow_client = pysnow.Client(instance=SNOW_INSTANCE, user=SNOW_USERNAME, password=SNOW_PASSWORD)
+
+
+def query_Device(DeviceName):
+    #Query client for Device by name
+    table = snow_client.resource(api_path=CMDB_PATH)
+    RPquery = (
+        pysnow.QueryBuilder()
+        .field('name').equals(DeviceName)
+    )
+    fetch = table.get(query=RPquery).all()
+
+    #Check for results and decrypt password
+    if fetch and fetch[0]:
+        url = f"https://{SNOW_INSTANCE}.service-now.com/api/fuss2/ci_password/{fetch[0]['sys_id']}/getcipassword"
+        header = {
+            'Content-Type': 'application/json'
+        }
+        response = requests.get(url, auth=(SNOW_USERNAME, SNOW_PASSWORD), headers=header)
+        json_data = response.text
+        pwd_dict = json.loads(json_data)
+        decrypted_password = pwd_dict['result']['fs_password']
+        fetch[0]['u_fs_password']=decrypted_password
+
+        return fetch[0]
+    else:
+        return None
 
 
 def email_report(directory):
     uploadFiles = []
     table_titles = []
     for file in os.listdir(directory):
+        logger.debug(f"Attatching {file}")
         table_titles.append(file.split(".")[0])
         uploadFiles.append(('files', open(os.path.join(directory, file), "rb")))
 
     Data = {
-        'subject'     : CONFIG.get('Email', 'subject'),
-        'to'          : CONFIG.get('Email', 'recipients'),
-        'cc'          : CONFIG.get('Email', 'cc'),
-        'bcc'         : CONFIG.get('Email', 'bcc'),
-        'report_name' : CONFIG.get('Email', 'reportName'),
+        'subject'     : os.getenv('SUBJECT'),
+        'to'          : os.getenv('RECIPIENTS'),
+        'cc'          : os.getenv('CC'),
+        'bcc'         : os.getenv('BCC'),
+        'report_name' : os.getenv('REPORTNAME'),
         'table_title' : table_titles
     }
 
@@ -53,20 +87,24 @@ def logger_init():
 #Step 1: Get list of devices from noco - for now local list
 logger_init()
 #Step 2: get device data from snow - for now local list
-with open(os.path.join("config", "devices.json"), "r") as devicefile:
+with open(os.path.join("src", "devices.json"), "r") as devicefile:
     devicedata = json.load(devicefile)
 
 #step 3: init device list with snow data
 devicelist = []
 for device in devicedata['devices']:
-    devicelist.append(classes.Device(device['snowName'], device, device['type']))
+    if device['snowName']:
+        logger.debug(f"Fetching snow data for {device['snowName']}")
+        snowdevice = query_Device(device['snowName'])
+        if snowdevice:
+            devicelist.append(classes.Device(device['snowName'], snowdevice, device['type']))
 #step 4: iterate over list of devices
     #get data from device module
     #aggregate data
 module_map = {
         "DataDomain" : DataDomain,
         "Isilon"     : Isilon,
-        #"Meraki"     : cisco_meraki,
+        #"Meraki"    : cisco_meraki,
         "Pure"       : Pure,
         "UCS"        : UCS,
         "VMAX"       : VMAX,
