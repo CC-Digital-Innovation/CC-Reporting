@@ -1,5 +1,5 @@
 from DeviceModules import Isilon, DataDomain, Pure, UCS, VMAX, XtremIO
-from config import classes
+from DeviceModules import classes
 from pathlib import PurePath
 import dotenv
 import tempfile

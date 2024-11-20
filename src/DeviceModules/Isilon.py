@@ -1,7 +1,7 @@
 import time
 from typing import List
 import isilon_sdk.v9_4_0
-from config import classes
+from DeviceModules import classes
 
 
 def run_basic_healthcheck_evaluation(device: classes.Device) -> str:

@@ -3,7 +3,7 @@ from typing import List
 
 from dotenv import load_dotenv
 import meraki
-from config import classes
+from DeviceModules import classes
 
 
 # Load environment variables.

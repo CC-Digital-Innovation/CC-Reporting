@@ -5,7 +5,7 @@ import requests
 import time
 import json
 from loguru import logger
-from config import classes
+from DeviceModules import classes
 
 GB = ((1/1024)/1024)
 

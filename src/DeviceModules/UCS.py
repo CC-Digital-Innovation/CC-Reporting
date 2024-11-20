@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from config import classes
+from DeviceModules import classes
 import ucsmsdk.mometa.fault.FaultInst as UCSFault
 from ucsmsdk.ucshandle import UcsHandle
 
