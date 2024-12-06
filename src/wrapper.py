@@ -28,6 +28,13 @@ logger_init()
 #Set up globals from .env
 dotenv.load_dotenv(PurePath(__file__).with_name('.env'))
 
+
+URL = os.getenv['Email_API_URL']
+EMAILAPI_TOKEN = os.getenv['Email_API_Token']
+SNOW_INSTANCE = os.getenv['Snow_Instance']
+SNOW_USERNAME = os.getenv['Snow_User']
+SNOW_PASSWORD = os.getenv['Snow_Password']
+CMDB_PATH     = os.getenv['CMDB_Path']
 NOCO_URL = os.getenv('NOCO_BASE_URL')
 NOCO_DB_HEADER = {
     "xc-token" : os.getenv('NOCO_TOKEN')
@@ -85,16 +92,7 @@ def noco_get_devices(custname):
         logger.debug(f"Error getting bases, Noco Response message: {r.text}")
         return {"Error" : "Error retrieving customer tables"}
 
-CONFIG = noco_config_retrieval(CUSTOMER)
-if CONFIG:
-    URL = CONFIG['Email API URL']
-    EMAILAPI_TOKEN = CONFIG['Email API Token']
-    SNOW_INSTANCE = CONFIG['Snow Instance']
-    SNOW_USERNAME = CONFIG['Snow User']
-    SNOW_PASSWORD = CONFIG['Snow Password']
-    CMDB_PATH     = CONFIG['CMDB Path']
-else:
-    raise Exception("Configuration retrieval failed")
+
 snow_client = pysnow.Client(instance=SNOW_INSTANCE, user=SNOW_USERNAME, password=SNOW_PASSWORD)
 
 
@@ -131,13 +129,19 @@ def email_report(directory):
         logger.debug(f"Attatching {file}")
         table_titles.append(file.split(".")[0])
         uploadFiles.append(('files', open(os.path.join(directory, file), "rb")))
+    
+    config = noco_config_retrieval(CUSTOMER)
+    if config:
+        pass
+    else:
+        raise Exception("Configuration retrieval failed")
 
     Data = {
-        'subject'     : CONFIG['Email Subject'],
-        'to'          : CONFIG['Email Recipients'],
-        'cc'          : CONFIG['CC'],
-        'bcc'         : CONFIG['BCC'],
-        'report_name' : CONFIG['Report Name'],
+        'subject'     : config['Email Subject'],
+        'to'          : config['Email Recipients'],
+        'cc'          : config['CC'],
+        'bcc'         : config['BCC'],
+        'report_name' : config['Report Name'],
         'table_title' : table_titles
     }
 
