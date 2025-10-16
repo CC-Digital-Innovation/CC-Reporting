@@ -28,69 +28,25 @@ logger_init()
 #Set up globals from .env
 dotenv.load_dotenv(PurePath(__file__).with_name('.env'))
 
-
-URL = os.getenv['Email_API_URL']
-EMAILAPI_TOKEN = os.getenv['Email_API_Token']
 SNOW_INSTANCE = os.getenv['Snow_Instance']
 SNOW_USERNAME = os.getenv['Snow_User']
 SNOW_PASSWORD = os.getenv['Snow_Password']
 CMDB_PATH     = os.getenv['CMDB_Path']
-NOCO_URL = os.getenv('NOCO_BASE_URL')
-NOCO_DB_HEADER = {
-    "xc-token" : os.getenv('NOCO_TOKEN')
+DB_URL = os.getenv('DB_URL')
+DB_HEADER = {
+    "pscp_sec_token" : os.getenv('DB_TOKEN')
 }
-NOCO_CONFIG_TABLE_ID = os.getenv("NOCO_CONFIG_TABLE_ID")
 CUSTOMER = os.getenv("CUSTOMER_NAME")
-def noco_config_retrieval(custname):
-    search = {
-        "where" : f"(Customer,eq,{custname})"
-    }
-    
-    r = requests.get(f"{NOCO_URL}api/v2/tables/{NOCO_CONFIG_TABLE_ID}/records", params=search, headers=NOCO_DB_HEADER)
-    logger.debug(f"Response from NoCo for config: {r}")
-    if r.status_code == 200 and 'list' in r.json().keys():
-        return r.json()['list'][0]
-    else:
-        logger.debug(f"Error getting config, response message{r.text}")
-        return "Error retrieving configuration from NoCo"
 
-def noco_get_devices(custname):
-    r = requests.get(f"{NOCO_URL}api/v2/meta/bases/", headers=NOCO_DB_HEADER)
-    if r.status_code == 200 and 'list' in r.json().keys():
-        for customer in r.json()['list']:
-            if customer['title']==custname:
-                base = requests.get(f"{NOCO_URL}api/v2/meta/bases/{customer['id']}/tables", headers=NOCO_DB_HEADER)
-                logger.debug(f"Response from NoCo for Customer table: {base}")
-                if base.status_code == 200 and 'list' in base.json().keys():
-                    for table in base.json()['list']:
-                        if table['title'] == 'Devices':
-                            devices=[]
-                            page = 0
-                            flag=True
-                            while flag:
-                                page = page +1
-                                query= {"page":page}
-                                repeat_request = requests.get(f"{NOCO_URL}api/v2/tables/{table['id']}/records", params =query, headers=NOCO_DB_HEADER)
-                                logger.debug(f"Response from NoCo for devices: {repeat_request}")
-                                if repeat_request.status_code == 200 and 'list' in repeat_request.json().keys():
-                                    for device in repeat_request.json()['list']:
-                                        devices.append(device)
-                                    if r.json()['pageInfo']['isLastPage']:
-                                        flag = False
-                                else:
-                                    logger.debug(f"Error getting devices, Noco Response message: {repeat_request.text}")
-                                    return {"Error" : "Error retrieving devices"}
-                            return devices
-                    logger.debug(f"Customer Devices table not found")
-                    return {"Error" : "Customer devices table not found"}
-                else:
-                    logger.debug(f"Error getting Customer table, Noco Response message: {base.text}")
-                    return {"Error" : "Error retrieving base tables"}
-        logger.debug(f"Customer table not found")
-        return {"Error" : "customer table not found"}
+def get_devices(custname):
+    payload = json.dumps({
+        "customer_name" : custname
+    })
+    r = requests.post(f"{DB_URL}", data = payload , headers=DB_HEADER)
+    if r.status_code == 200:
+        return r.json()["devices"]
     else:
-        logger.debug(f"Error getting bases, Noco Response message: {r.text}")
-        return {"Error" : "Error retrieving customer tables"}
+        return {"Error" : "Error retrieving devices"}
 
 
 snow_client = pysnow.Client(instance=SNOW_INSTANCE, user=SNOW_USERNAME, password=SNOW_PASSWORD)
@@ -121,50 +77,20 @@ def query_Device(DeviceName):
     else:
         return None
 
-
-def email_report(directory):
-    uploadFiles = []
-    table_titles = []
-    for file in os.listdir(directory):
-        logger.debug(f"Attatching {file}")
-        table_titles.append(file.split(".")[0])
-        uploadFiles.append(('files', open(os.path.join(directory, file), "rb")))
-    
-    config = noco_config_retrieval(CUSTOMER)
-    if config:
-        pass
-    else:
-        raise Exception("Configuration retrieval failed")
-
-    Data = {
-        'subject'     : config['Email Subject'],
-        'to'          : config['Email Recipients'],
-        'cc'          : config['CC'],
-        'bcc'         : config['BCC'],
-        'report_name' : config['Report Name'],
-        'table_title' : table_titles
-    }
-
-    header = {
-        'API_KEY' : EMAILAPI_TOKEN
-    }
-
-    r = requests.request("POST", url = URL, headers=header, data = Data, files=uploadFiles)
-    logger.debug(r)
     
 
 #Step 1: Get list of devices from noco - for now local list
-devicedata = noco_get_devices(CUSTOMER)
+devicedata = get_devices(CUSTOMER)
 
 devicelist = []
 for device in devicedata:
-    if device['Snow Name']:
+    if device['cr61f_devicename']:
         #Step 2: get device data from snow - for now local list
-        logger.debug(f"Fetching snow data for {device['Snow Name']}")
-        snowdevice = query_Device(device['Snow Name'])
+        logger.debug(f"Fetching snow data for {device['cr61f_devicename']}")
+        snowdevice = query_Device(device['cr61f_devicename'])
         #step 3: init device list with snow data
         if snowdevice:
-            devicelist.append(classes.Device(device['Snow Name'], snowdevice, device['Type']))
+            devicelist.append(classes.Device(device['cr61f_devicename'], snowdevice, device['cr61f_devicetype']))
 #step 4: iterate over list of devices
     #get data from device module
     #aggregate data
@@ -204,5 +130,6 @@ with tempfile.TemporaryDirectory() as csvdir:
                 csvwrite = csv.writer(file)
                 csvwrite.writerow(temprep.headerRow)
                 csvwrite.writerows(temprep.rows)
-    #step 6 email report with email api
-    email_report(csvdir)
+    #step 6 save data back
+    #save data back to dataverse
+    

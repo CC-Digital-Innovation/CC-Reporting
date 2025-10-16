@@ -29,7 +29,15 @@ class StorageDevice:
         return round(self.used_storage / self.total_storage, decimal_precision)
 
 class Report:
+    capacity: list[list]
+    alerts: list[list]
+    replications: list[list]
+    directors: list[list]
+    hardware: list[list]
+    faileddisk: list[list]
+    snapshots: list[list]
     rows: list[list]
+    devices: list
     csvData: str
     dictData: dict
     headerRow: list
