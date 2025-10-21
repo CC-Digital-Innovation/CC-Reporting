@@ -40,7 +40,7 @@ class Report:
     devices: list
     csvData: str
     dictData: dict
-    headerRow: list
+    headerRow: list = None
 
     def __init__(self, headerrow):
         self.headerRow = headerrow

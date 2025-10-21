@@ -1,4 +1,4 @@
-from DeviceModules import Isilon, DataDomain, Pure, UCS, VMAX, XtremIO
+from DeviceModules import Isilon, DataDomain, Pure, UCS, VMAX, XtremIO, NetAPP
 from DeviceModules import classes
 from pathlib import PurePath
 import dotenv
@@ -101,7 +101,8 @@ module_map = {
         "Pure"       : Pure,
         "UCS"        : UCS,
         "VMAX"       : VMAX,
-        "XtremIO"    : XtremIO
+        "XtremIO"    : XtremIO,
+        "NetAPP"     : NetAPP
     }
 reports = {
         "DataDomain" : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
@@ -110,7 +111,8 @@ reports = {
         "Pure"       : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
         "UCS"        : classes.Report(['Name', 'Device', 'Alert Severity', 'Description']),
         "VMAX"       : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        "XtremIO"    : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count'])
+        "XtremIO"    : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
+        "NetAPP"     : classes.Report()
     }
 
 for device in devicelist:
@@ -126,9 +128,10 @@ with tempfile.TemporaryDirectory() as csvdir:
     for key in reports.keys():
         temprep = reports[key]
         if temprep.rows:
-            with open(os.path.join(csvdir, f"{key}.csv") , "w") as file:
+            with open(os.path.join(csvdir, f"{key}.csv") , "w", newline='') as file:
                 csvwrite = csv.writer(file)
-                csvwrite.writerow(temprep.headerRow)
+                if temprep.headerRow:
+                    csvwrite.writerow(temprep.headerRow)
                 csvwrite.writerows(temprep.rows)
     #step 6 save data back
     #save data back to dataverse
