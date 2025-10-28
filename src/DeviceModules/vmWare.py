@@ -1,132 +1,72 @@
-from DeviceModules import NetApp, vmWare
-from DeviceModules import classes
-from pathlib import PurePath
-import dotenv
-import tempfile
-import os
-import csv
-import json
-import sys
-import pysnow
-import requests
-from loguru import logger
+#Author Ben Meyersimport requests
 import urllib3
-urllib3.disable_warnings()
-
-#logger
-def logger_init():
-    logger.remove()
-    logger.add(sys.stderr, colorize=True, level="DEBUG")
-    logfile = os.path.join(os.getcwd(), 'latest.log')
-    logger.add(logfile, level='DEBUG')
-    logger.info("*****************************")
-    logger.info("*********Report Start********")
-    logger.info("*****************************")
-
-logger_init()
-#Set up globals from .env
-dotenv.load_dotenv(PurePath(__file__).with_name('.env'))
-
-SNOW_INSTANCE = os.getenv('Snow_Instance')
-SNOW_USERNAME = os.getenv('Snow_User')
-SNOW_PASSWORD = os.getenv('Snow_Password')
-CMDB_PATH     = os.getenv('CMDB_Path')
-DB_URL = os.getenv('DB_URL')
-DB_HEADER = {
-    "Content-Type" : "application/json",
-    "pscp_sec_token" : os.getenv('DB_TOKEN')
-}
-CUSTOMER = os.getenv("CUSTOMER_NAME")
-
-def get_devices(custname):
-    payload = json.dumps({
-        "customer_name" : custname
-    })
-    r = requests.post(f"{DB_URL}", data = payload , headers=DB_HEADER)
-    if r.status_code == 201:
-        return r.json()["devices"]
-    else:
-        return {"Error" : "Error retrieving devices"}
+from pyVim.connect import SmartConnect, Disconnect
+from pyVmomi import vim
+import dotenv
+import requests
+import os
+from DeviceModules import classes
+import json
+import atexit
+import ssl
 
 
-snow_client = pysnow.Client(instance=SNOW_INSTANCE, user=SNOW_USERNAME, password=SNOW_PASSWORD)
+# Start session a disable certifcate verification
+session = requests.session()
+session.verify = False
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-def query_Device(DeviceName):
-    #Query client for Device by name
-    table = snow_client.resource(api_path=CMDB_PATH)
-    RPquery = (
-        pysnow.QueryBuilder()
-        .field('name').equals(DeviceName)
-    )
-    fetch = table.get(query=RPquery).all()
+# Get the capacity data with the pyvmomi sdk
+def get_capacity_data(service_instance):
+    info = {}
+    content = service_instance.RetrieveContent()
 
-    #Check for results and decrypt password
-    if fetch and fetch[0]:
-        url = f"https://{SNOW_INSTANCE}.service-now.com/api/fuss2/ci_password/{fetch[0]['sys_id']}/getcipassword"
-        header = {
-            'Content-Type': 'application/json'
+    # Get datastore information
+    datastore_info = []
+    datastore_container = content.viewManager.CreateContainerView(content.rootFolder, [vim.Datastore], True)
+    datastores = datastore_container.view
+    # Get datastore information
+    for datastore in datastores:
+        capacity = datastore.summary.capacity / (1024**3)
+        free_space = datastore.summary.freeSpace / (1024**3)
+        used_space = (datastore.summary.capacity - datastore.summary.freeSpace) / (1024**3)
+        datastore_data = {
+            "Name" : datastore.summary.name,
+            "Type" : datastore.summary.type,
+            "Accessible" : datastore.summary.accessible,
+            "Capacity_GB": format(capacity, '.2f') + ' GB',
+            "Free_Space_GB": format(free_space, '.2f') + ' GB',
+            "Used_Space_GB": format(used_space, '.2f') + ' GB',
+            "Free_Space_Percent": format(free_space / capacity * 100, '.2f') + ' %',
+            "Used_Space_Percent": format(used_space / capacity * 100, '.2f') + ' %'
         }
-        response = requests.get(url, auth=(SNOW_USERNAME, SNOW_PASSWORD), headers=header)
-        json_data = response.text
-        pwd_dict = json.loads(json_data)
-        decrypted_password = pwd_dict['result']['fs_password']
-        fetch[0]['u_fs_password']=decrypted_password
+        datastore_info.append(datastore_data)
+    return datastore_info
 
-        return fetch[0]
-    else:
-        return None
+def get_report(device: classes.Device, report: classes.Report):
+    # Load vCenter env variables
+    vcenter_apihost = device.hostname
+    vcenter_username = device.username
+    vcenter_password = device.password
 
-    
+    # Create ssl context
+    context = None
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
 
-#Step 1: Get list of devices from noco - for now local list
-devicedata = get_devices(CUSTOMER)
-
-devicelist = []
-for device in devicedata:
-    if device['cr61f_devicename']:
-        #Step 2: get device data from snow - for now local list
-        logger.debug(f"Fetching snow data for {device['cr61f_devicename']}")
-        snowdevice = query_Device(device['cr61f_devicename'])
-        #step 3: init device list with snow data
-        if snowdevice:
-            devicelist.append(classes.Device(device['cr61f_devicename'], snowdevice, device['cr61f_devicetype@OData.Community.Display.V1.FormattedValue']))
-#step 4: iterate over list of devices
-    #get data from device module
-    #aggregate data
-module_map = {
-        "NetApp"     : NetApp,
-        "vmWare"     : vmWare
-    }
-reports = {
-        "DataDomain" : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        "Isilon"     : classes.Report(['Name', 'Device', 'Alert Severity', 'Description']),
-        "Meraki"     : classes.Report(['Name', 'Device', 'Alert Severity', 'Description']),
-        "Pure"       : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        "UCS"        : classes.Report(['Name', 'Device', 'Alert Severity', 'Description']),
-        "VMAX"       : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        "XtremIO"    : classes.Report(['Name', 'Used space', 'Total Space', 'Free Space', 'alerts', 'alerts count']),
-        "NetApp"     : classes.Report(),
-        "vmWare"     : classes.Report(['DatastoreName','Type','CapacityGB','FreeSpaceGB','UsedSpaceGB','PercentUsed','PercentFree','Accessible'])
-    }
-
-for device in devicelist:
-    if device.type in module_map.keys():
-        logger.info(f"Starting report for {device.type}")
-        try:
-            reports[device.type] = module_map[device.type].get_report(device, reports[device.type])
-        except Exception as e:
-            logger.debug(e)
-
-#step 5 make report from aggregated data
-    for key in reports.keys():
-        temprep = reports[key]
-        if temprep.rows:
-            with open(os.path.join('csvs', f"{key}.csv") , "w", newline='') as file:
-                csvwrite = csv.writer(file)
-                if temprep.headerRow:
-                    csvwrite.writerow(temprep.headerRow)
-                csvwrite.writerows(temprep.rows)
-    #step 6 save data back
-    #save data back to dataverse
-    
+    # Connect to the vCenter server
+    si = SmartConnect(host=vcenter_apihost, user=vcenter_username, pwd=vcenter_password, sslContext=context)
+    content = si.RetrieveContent()
+    datastore_raw_data = get_capacity_data(si)
+    atexit.register(Disconnect, si)
+    # test_vsphere_automation()
+    datastore_payload_data = {}
+    for datastore in datastore_raw_data:
+        datastore_payload_data[datastore['Name']]={
+            "TBD" : datastore['Accessible']
+        }
+        report.rows.append([datastore["Name"],datastore["Type"],datastore["Capacity_GB"],datastore["Free_Space_GB"],datastore["Used_Space_GB"],datastore["Used_Space_Percent"],datastore["Free_Space_Percent"],datastore["Accessible"]])
+    report.dictData=datastore_payload_data
+    return report
