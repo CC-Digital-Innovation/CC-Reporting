@@ -42,7 +42,7 @@ class Report:
     dictData: dict
     headerRow: list = None
 
-    def __init__(self, headerrow):
+    def __init__(self, headerrow=None):
         self.headerRow = headerrow
         self.rows = []
 
