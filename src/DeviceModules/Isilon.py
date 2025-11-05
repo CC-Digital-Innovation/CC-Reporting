@@ -1,6 +1,6 @@
 import time
 from typing import List
-import isilon_sdk.v9_4_0
+import isilon_sdk.v9_5_0
 from DeviceModules import classes
 
 
@@ -14,17 +14,17 @@ def run_basic_healthcheck_evaluation(device: classes.Device) -> str:
     """
 
     # Dell Isilon configuration variables.
-    isilon_config = isilon_sdk.v9_4_0.Configuration()
+    isilon_config = isilon_sdk.v9_5_0.Configuration()
     isilon_config.host = f'https://{device.ip}'
     isilon_config.username = device.username
     isilon_config.password = device.password
     isilon_config.verify_ssl = False
 
-    isilon_api_client = isilon_sdk.v9_4_0.ApiClient(isilon_config)
-    isilon_healthcheck_api_client = isilon_sdk.v9_4_0.HealthcheckApi(isilon_api_client)
+    isilon_api_client = isilon_sdk.v9_5_0.ApiClient(isilon_config)
+    isilon_healthcheck_api_client = isilon_sdk.v9_5_0.HealthcheckApi(isilon_api_client)
 
     # Run the basic healthcheck on the Dell Isilon.
-    basic_healthcheck_evaluation_checklist = isilon_sdk.v9_4_0.HealthcheckEvaluationCreateParams(checklist_id="basic")
+    basic_healthcheck_evaluation_checklist = isilon_sdk.v9_5_0.HealthcheckEvaluationCreateParams(checklist_id="basic")
     basic_healthcheck_evaluation_response = isilon_healthcheck_api_client.create_healthcheck_evaluation(basic_healthcheck_evaluation_checklist, isilon_healthcheck_api_client)
     
     # Extract the healthcheck evaluation ID from the response.
@@ -34,7 +34,7 @@ def run_basic_healthcheck_evaluation(device: classes.Device) -> str:
     return basic_healthcheck_evaluation_id
 
 
-def get_evaluation_results(evaluation_id: str, healthclient) -> isilon_sdk.v9_4_0.HealthcheckEvaluationExtended:
+def get_evaluation_results(evaluation_id: str, healthclient) -> isilon_sdk.v9_5_0.HealthcheckEvaluationExtended:
     """
     Awaits the results of an evaluation given its ID. Returns the results once the evaluation successfully
     completes, otherwise returns "None".
@@ -67,7 +67,7 @@ def get_evaluation_results(evaluation_id: str, healthclient) -> isilon_sdk.v9_4_
     return basic_healthcheck_results.evaluations[0]
 
 
-def cleanse_evaluation_results(evaluation: isilon_sdk.v9_4_0.HealthcheckEvaluationExtended) -> List[classes.Alert]:
+def cleanse_evaluation_results(evaluation: isilon_sdk.v9_5_0.HealthcheckEvaluationExtended) -> List[classes.Alert]:
     """
     Convert the Dell Isilon SDK evaluation object into a list of alerts from the Isilon. Return the list.
 

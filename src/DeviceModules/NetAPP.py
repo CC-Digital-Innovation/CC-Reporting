@@ -81,7 +81,7 @@ def bytes_to_gb(bytes_value):
 def get_report(device: classes.Device, report: classes.Report):
     logger.info("Pulling data and creating report...")
    # Initialize NetApp ONTAP client
-    netapp = NetAppONTAP(device.ip, device.username, device.password, True)
+    netapp = NetAppONTAP(device.ip, device.username, device.password, False)
 
     # Collect capacity data
     aggregates = netapp.get_aggregates()

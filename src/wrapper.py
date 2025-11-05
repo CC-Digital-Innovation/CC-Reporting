@@ -10,6 +10,7 @@ import sys
 import pysnow
 import requests
 from loguru import logger
+from requests.exceptions import HTTPError
 import urllib3
 urllib3.disable_warnings()
 
@@ -31,8 +32,10 @@ SNOW_INSTANCE = os.getenv('Snow_Instance')
 SNOW_USERNAME = os.getenv('Snow_User')
 SNOW_PASSWORD = os.getenv('Snow_Password')
 CMDB_PATH     = os.getenv('CMDB_Path')
+DB_REPORT_URL = os.getenv('DB_REPORT_URL')
 DB_URL = os.getenv('DB_URL')
 DB_HEADER = {
+    "Content-Type" : "application/json",
     "pscp_sec_token" : os.getenv('DB_TOKEN')
 }
 CUSTOMER = os.getenv("CUSTOMER_NAME")
@@ -42,15 +45,26 @@ def get_devices(custname):
         "customer_name" : custname
     })
     r = requests.post(f"{DB_URL}", data = payload , headers=DB_HEADER)
-    if r.status_code == 200:
+    logger.debug(r.content)
+    if r.status_code == 201:
         return r.json()["devices"]
     else:
         return {"Error" : "Error retrieving devices"}
     
-"""
-def send_report_data(report_data):
-   payload = json.dumps(report_data)
-    r = requests.post(f"{DB_REPORT_URL}", data = payload , headers=DB_HEADER)"""
+
+def send_report_data(report_data, company=CUSTOMER):
+    payload = {
+        'company': company,
+        'metrics': report_data
+    }
+    r = requests.post(f"{DB_REPORT_URL}", json = payload , headers=DB_HEADER)
+    try:
+        r.raise_for_status()
+    except HTTPError as e:
+        # send alert to custom HTTP endpoint
+        logger.error(str(e))
+        return str(e)
+    return r.text
 
 
 snow_client = pysnow.Client(instance=SNOW_INSTANCE, user=SNOW_USERNAME, password=SNOW_PASSWORD)
@@ -94,7 +108,7 @@ for device in devicedata:
         snowdevice = query_Device(device['cr61f_devicename'])
         #step 3: init device list with snow data
         if snowdevice:
-            devicelist.append(classes.Device(device['cr61f_devicename'], snowdevice, device['cr61f_devicetype']))
+            devicelist.append(classes.Device(device['cr61f_devicename'], snowdevice, device['cr61f_devicetype@OData.Community.Display.V1.FormattedValue']))
 #step 4: iterate over list of devices
     #get data from device module
     #aggregate data
@@ -130,13 +144,12 @@ for device in devicelist:
             logger.debug(e)
 
 #step 5 make report from aggregated data
-with tempfile.TemporaryDirectory() as csvdir:
     for key in reports.keys():
         temprep = reports[key]
-        #if temprep.dictData:
-        #    send_report_data(temprep.dictData)
+        if hasattr(temprep, "dictData") and temprep.dictData:
+           send_report_data(temprep.dictData)
         if temprep.rows:
-            with open(os.path.join(csvdir, f"{key}.csv") , "w", newline='') as file:
+            with open(os.path.join('csvsdir', f"{key}.csv") , "w", newline='') as file:
                 csvwrite = csv.writer(file)
                 if temprep.headerRow:
                     csvwrite.writerow(temprep.headerRow)

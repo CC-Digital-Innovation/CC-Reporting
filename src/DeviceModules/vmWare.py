@@ -1,4 +1,4 @@
-#Author Ben Meyersimport requests
+#Author Ben Meyers
 import urllib3
 from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
@@ -35,7 +35,9 @@ def get_capacity_data(service_instance):
             "Name" : datastore.summary.name,
             "Type" : datastore.summary.type,
             "Accessible" : datastore.summary.accessible,
+            'capacity_rounded': round(capacity, 2),
             "Capacity_GB": format(capacity, '.2f') + ' GB',
+            'free_space_rounded': round(free_space, 2),
             "Free_Space_GB": format(free_space, '.2f') + ' GB',
             "Used_Space_GB": format(used_space, '.2f') + ' GB',
             "Free_Space_Percent": format(free_space / capacity * 100, '.2f') + ' %',
@@ -62,11 +64,14 @@ def get_report(device: classes.Device, report: classes.Report):
     datastore_raw_data = get_capacity_data(si)
     atexit.register(Disconnect, si)
     # test_vsphere_automation()
-    datastore_payload_data = {}
+    datastore_payload_data = []
     for datastore in datastore_raw_data:
-        datastore_payload_data[datastore['Name']]={
-            "TBD" : datastore['Accessible']
-        }
+        datastore_payload_data.append({
+            'name' : datastore['Name'],
+            'capacity': datastore['capacity_rounded'],
+            'freespace': datastore['free_space_rounded'],
+            'type' : datastore["Type"]
+        })
         report.rows.append([datastore["Name"],datastore["Type"],datastore["Capacity_GB"],datastore["Free_Space_GB"],datastore["Used_Space_GB"],datastore["Used_Space_Percent"],datastore["Free_Space_Percent"],datastore["Accessible"]])
     report.dictData=datastore_payload_data
     return report
