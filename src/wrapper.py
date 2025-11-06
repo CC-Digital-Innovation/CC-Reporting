@@ -120,7 +120,7 @@ module_map = {
         "UCS"        : UCS,
         "VMAX"       : VMAX,
         "XtremIO"    : XtremIO,
-        "NetApp"     : NetApp,
+        "NetApp"     : NetAPP,
         "vmWare"     : vmWare
     }
 reports = {
