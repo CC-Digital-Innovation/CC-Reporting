@@ -1,4 +1,4 @@
-from DeviceModules import Isilon, DataDomain, Pure, UCS, VMAX, XtremIO, NetApp, vmWare
+from DeviceModules import Isilon, DataDomain, Pure, UCS, VMAX, XtremIO, NetAPP, vmWare
 from DeviceModules import classes
 from pathlib import PurePath
 import dotenv
