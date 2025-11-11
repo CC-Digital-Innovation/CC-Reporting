@@ -52,9 +52,10 @@ def get_devices(custname):
         return {"Error" : "Error retrieving devices"}
     
 
-def send_report_data(report_data, company=CUSTOMER):
+def send_report_data(report_data, type, company=CUSTOMER):
     payload = {
         'company': company,
+        'type': type,
         'metrics': report_data
     }
     r = requests.post(f"{DB_REPORT_URL}", json = payload , headers=DB_HEADER)
@@ -147,7 +148,7 @@ for device in devicelist:
     for key in reports.keys():
         temprep = reports[key]
         if hasattr(temprep, "dictData") and temprep.dictData:
-           send_report_data(temprep.dictData)
+           send_report_data(temprep.dictData, device.type)
         if temprep.rows:
             with open(os.path.join('csvsdir', f"{key}.csv") , "w", newline='') as file:
                 csvwrite = csv.writer(file)
