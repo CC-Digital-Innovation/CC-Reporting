@@ -148,7 +148,8 @@ for device in devicelist:
     for key in reports.keys():
         temprep = reports[key]
         if hasattr(temprep, "dictData") and temprep.dictData:
-           send_report_data(temprep.dictData, device.type)
+            logger.info(f"Sending report for: {key}")
+            send_report_data(temprep.dictData, key)
         if temprep.rows:
             with open(os.path.join('csvsdir', f"{key}.csv") , "w", newline='') as file:
                 csvwrite = csv.writer(file)

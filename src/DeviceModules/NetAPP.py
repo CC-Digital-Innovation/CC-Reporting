@@ -88,6 +88,8 @@ def get_report(device: classes.Device, report: classes.Report):
     volumes = netapp.get_volumes()
     luns = netapp.get_luns()
 
+    agg_Data = []
+
 
     # Aggregate section
     report.rows.append(['AGGREGATE CAPACITY REPORT'])
@@ -114,11 +116,24 @@ def get_report(device: classes.Device, report: classes.Report):
             used_pct
         ])
 
+        agg_Data.append({
+           'name': agg.get('name', 'N/A'),
+            'node': agg.get('node', {}).get('name', 'N/A'),
+            'state': agg.get('state', 'N/A'),
+            'capacity': total,
+            'usedspace': used,
+            'freespace': available,
+            'Used %': used_pct
+            }
+        )
+
     # Volume section
     report.rows.append([])
     report.rows.append(['VOLUME CAPACITY REPORT'])
     report.rows.append([])
     report.rows.append(['Volume Name', 'SVM', 'Aggregate', 'Type', 'State', 'Total (GB)', 'Used (GB)', 'Available (GB)', 'Used %'])
+
+    vol_data = []
 
     for vol in volumes.get('records', []):
         space = vol.get('space', {})
@@ -146,11 +161,26 @@ def get_report(device: classes.Device, report: classes.Report):
             used_pct
         ])
 
+        vol_data.append({
+           'name': vol.get('name', 'N/A'),
+            'svm': vol.get('svm', {}).get('name', 'N/A'),
+            'aggregate': agg_name,
+            'type' : vol.get('type', 'N/A'),
+            'state' : vol.get('state', 'N/A'),
+            'capacity': total,
+            'usedspace': used,
+            'freespace': available,
+            'Used %': used_pct
+            }
+        )
+
     # LUN section
     report.rows.append([])
     report.rows.append(['LUN CAPACITY REPORT'])
     report.rows.append([])
     report.rows.append(['LUN Name', 'SVM', 'Volume', 'OS Type', 'Enabled', 'Size (GB)', 'Used (GB)', 'Used %'])
+
+    lun_data = []
 
     for lun in luns.get('records', []):
         space = lun.get('space', {})
@@ -169,5 +199,22 @@ def get_report(device: classes.Device, report: classes.Report):
             used,
             used_pct
         ])
+
+        lun_data.append({
+            'LUN Name': lun.get('name', 'N/A'),
+            'SVM' : lun.get('svm', {}).get('name', 'N/A'),
+            'Volume' : lun.get('location', {}).get('volume', {}).get('name', 'N/A'),
+            'OS Type' : lun.get('os_type', 'N/A'),
+            'Enabled' : lun.get('enabled', 'N/A'),
+            'Size (GB)' : size,
+            'Used (GB)' : used,
+            'Used %' : used_pct
+        })
+    
+    report.dictData = {
+        "aggregates" : agg_Data,
+        "volumes" : vol_data,
+        "Lun Data" : lun_data
+    }
 
     return report
