@@ -145,17 +145,17 @@ for device in devicelist:
             logger.debug(e)
 
 #step 5 make report from aggregated data
-    for key in reports.keys():
-        temprep = reports[key]
-        if hasattr(temprep, "dictData") and temprep.dictData:
-            logger.info(f"Sending report for: {key}")
-            send_report_data(temprep.dictData, key)
-        if temprep.rows:
-            with open(os.path.join('csvsdir', f"{key}.csv") , "w", newline='') as file:
-                csvwrite = csv.writer(file)
-                if temprep.headerRow:
-                    csvwrite.writerow(temprep.headerRow)
-                csvwrite.writerows(temprep.rows)
-    #step 6 save data back
-    #save data back to dataverse
+for key in reports.keys():
+    temprep = reports[key]
+    if hasattr(temprep, "dictData") and temprep.dictData:
+        logger.info(f"Sending report for: {key}")
+        send_report_data(temprep.dictData, key)
+    if temprep.rows:
+        with open(os.path.join('csvsdir', f"{key}.csv") , "w", newline='') as file:
+            csvwrite = csv.writer(file)
+            if temprep.headerRow:
+                csvwrite.writerow(temprep.headerRow)
+            csvwrite.writerows(temprep.rows)
+#step 6 save data back
+#save data back to dataverse
     
