@@ -6,3 +6,4 @@ requests
 isilon_sdk
 ucsmsdk
 pyvmomi
+pydantic
