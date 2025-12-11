@@ -46,6 +46,51 @@ def get_capacity_data(service_instance):
         datastore_info.append(datastore_data)
     return datastore_info
 
+
+def get_perf_metrics(service_instance):
+    content = service_instance.RetrieveContent()
+    host_container = content.viewManager.CreateContainerView(content.rootFolder, [vim.HostSystem], True)
+    hosts = host_container.view
+    # Get memory information for each ESXi host
+    performance_info = []
+    for host in hosts:
+        name = host.name
+        powerStatus = host.runtime.powerState
+        connectionStatus = host.runtime.connectionState
+        cpuPercent = (host.summary.quickStats.overallCpuUsage)/(host.summary.hardware.numCpuCores*(host.summary.hardware.cpuMhz))*100
+        cputotal = host.summary.hardware.numCpuCores*(host.summary.hardware.cpuMhz/1000)
+        memPercent = (host.summary.quickStats.overallMemoryUsage)/((host.summary.hardware.memorySize/1000000))*100
+        memtotal = (host.hardware.memorySize/1000000000)
+        uptime = host.summary.quickStats.uptime/60/60/24
+        vmcount = len(host.vm)
+        numcpus = host.summary.hardware.numCpuCores
+        model = host.summary.hardware.model
+        version = host.summary.config.product.version
+        status = 'Good'
+        if(cpuPercent>90 or memPercent>85):
+            status = 'Critical'
+        elif(cpuPercent>70 or memPercent>70):
+            status = 'Warning'
+
+        performance_data= {
+            'name' : name,
+            'powerStatus': powerStatus,
+            'connectionStatus' : connectionStatus,
+            'cpuPercent' : cpuPercent,
+            'cpuTotal' : cputotal,
+            'memPerfcent' : memPercent,
+            'memtotal' :  memtotal,
+            'uptime' : uptime,
+            'vmcount' : vmcount,
+            'numCpus' : numcpus,
+            'model' : model,
+            'version' : version,
+            'status' : status
+        }
+        performance_info.append(performance_data)
+    host_container.Destroy()
+    return performance_info
+
 def get_report(device: classes.Device, report: classes.Report):
     # Load vCenter env variables
     vcenter_apihost = device.hostname
@@ -62,6 +107,7 @@ def get_report(device: classes.Device, report: classes.Report):
     si = SmartConnect(host=vcenter_apihost, user=vcenter_username, pwd=vcenter_password, sslContext=context)
     content = si.RetrieveContent()
     datastore_raw_data = get_capacity_data(si)
+    perf_metrics = get_perf_metrics(si)
     atexit.register(Disconnect, si)
     # test_vsphere_automation()
     datastore_payload_data = []
@@ -73,5 +119,6 @@ def get_report(device: classes.Device, report: classes.Report):
             'type' : datastore["Type"]
         })
         report.rows.append([datastore["Name"],datastore["Type"],datastore["Capacity_GB"],datastore["Free_Space_GB"],datastore["Used_Space_GB"],datastore["Used_Space_Percent"],datastore["Free_Space_Percent"],datastore["Accessible"]])
-    report.dictData=datastore_payload_data
+    
+    report.dictData={'datastore_Cap' : datastore_payload_data, 'vm_performance' : perf_metrics}
     return report
