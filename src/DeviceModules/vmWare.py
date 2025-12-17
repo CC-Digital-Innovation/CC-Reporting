@@ -46,14 +46,40 @@ def get_capacity_data(service_instance):
         datastore_info.append(datastore_data)
     return datastore_info
 
+def query_performance_manager(content, samples, host, statId):
+    performanceManager = content.perfManager
+    metricId = vim.PerformanceManager.MetricId(counterId = statId)
+    query = vim.PerformanceManager.QuerySpec(maxSample = samples, entity=host, metricId=[metricId])
+    perfResults = performanceManager.QueryPerf(querySpec=[query])
+    return perfResults
 
 def get_perf_metrics(service_instance):
     content = service_instance.RetrieveContent()
+    #Create counterid map for performance stats
+    id_map = {}
+    id_list = content.perfManager.perfCounter
+    for id in id_list:
+        stat_name = f"{id.groupInfo.key}.{id.nameInfo.key}.{id.rollupType}"
+        id_map[stat_name] = id.key
+    # Get performance information from each ESXi host
     host_container = content.viewManager.CreateContainerView(content.rootFolder, [vim.HostSystem], True)
     hosts = host_container.view
-    # Get memory information for each ESXi host
     performance_info = []
     for host in hosts:
+        cpuready = query_performance_manager(content, 1, host, "cpu.ready.summation")
+        memballoon = query_performance_manager(content, 1, host, "mem.vmmemctl.average")
+        memswapped = query_performance_manager(content, 1, host, "mem.swapused.average")
+        networkTP = query_performance_manager(content, 5, host, "net.usage.average")
+        dstores = host.datastore
+        readLatTotal = 0
+        writeLatTotal = 0
+        for dstore in dstores:
+            readLat = query_performance_manager(content, 3, dstore, "datastore.totalReadLatency.average")
+            writeLat = query_performance_manager(content, 1, dstore, "datastore.totalWriteLatency.average")
+            readLatTotal = readLatTotal + readLat
+            writeLatTotal = writeLatTotal + writeLat
+        avgReadLat = readLatTotal/len(dstore)
+        avgwriteLat = writeLatTotal/len(dstore)
         name = host.name
         powerStatus = host.runtime.powerState
         connectionStatus = host.runtime.connectionState
