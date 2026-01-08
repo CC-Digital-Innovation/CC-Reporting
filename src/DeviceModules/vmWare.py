@@ -1,15 +1,17 @@
-#Author Ben Meyers
-import urllib3
-from pyVim.connect import SmartConnect, Disconnect
-from pyVmomi import vim
+import atexit
+import json
+import os
+import ssl
+from dataclasses import dataclass, field
+from datetime import datetime
+
 import dotenv
 import requests
-import os
-from DeviceModules import classes
-import json
-import atexit
-import ssl
+import urllib3
+from pyVim.connect import Disconnect, SmartConnect
+from pyVmomi import vim
 
+from DeviceModules import classes
 
 # Start session a disable certifcate verification
 session = requests.session()
@@ -90,6 +92,56 @@ def get_perf_metrics(service_instance):
         performance_info.append(performance_data)
     host_container.Destroy()
     return performance_info
+
+def get_licenses(content: vim.ServiceInstanceContent):
+    lm = content.licenseManager.licenseAssignmentManager
+    entity_id = content.about.instanceUuid
+    licenses = lm.QueryAssignedLicenses(entity_id)
+    return [License.from_license_info(la.assignedLicense) for la in licenses]
+
+
+@dataclass
+class License:
+    """
+    custom dataclass to flatten pyvmomi's LicenseInfo class
+    """
+    name: str
+    product_name: str
+    product_version: str
+    file_version: str
+    expiration_date: datetime | None = None
+    features: list[str] = field(default_factory=list)
+
+    @classmethod
+    def from_license_info(cls, info: vim.LicenseManager.LicenseInfo):
+        # default attribute values in case properties are missing
+        product_name = ''
+        product_version = ''
+        file_version = ''
+        expiration_date = None
+        features = []
+
+        # loop through properties (stored as list of custom key-value object)
+        for p in info.properties:
+            if p.key == 'ProductName':
+                product_name = p.value
+            elif p.key == 'ProductVersion':
+                product_version = p.value
+            elif p.key == 'FileVersion':
+                file_version = p.value
+            elif p.key == 'expirationDate':
+                expiration_date = p.value
+            elif p.key == 'feature':
+                features.append(p.value.value)
+
+        return cls(
+            name = info.name,
+            product_name = product_name,
+            product_version = product_version,
+            file_version = file_version,
+            expiration_date = expiration_date,
+            features = features)
+
 
 def get_report(device: classes.Device, report: classes.Report):
     # Load vCenter env variables
