@@ -46,15 +46,40 @@ def get_capacity_data(service_instance):
         datastore_info.append(datastore_data)
     return datastore_info
 
+def query_performance_manager(content, samples, host, statId):
+    performanceManager = content.perfManager
+    metricId = vim.PerformanceManager.MetricId(counterId = statId)
+    query = vim.PerformanceManager.QuerySpec(maxSample = samples, entity=host, metricId=[metricId])
+    perfResults = performanceManager.QueryPerf(querySpec=[query])
+    return perfResults
 
 def get_perf_metrics(service_instance):
     content = service_instance.RetrieveContent()
+    #Create counterid map for performance stats
+    id_map = {}
+    id_list = content.perfManager.perfCounter
+    for id in id_list:
+        stat_name = f"{id.groupInfo.key}.{id.nameInfo.key}.{id.rollupType}"
+        id_map[stat_name] = id.key
+    # Get performance information from each ESXi host
     host_container = content.viewManager.CreateContainerView(content.rootFolder, [vim.HostSystem], True)
     hosts = host_container.view
-    # Get memory information for each ESXi host
     performance_info = []
     for host in hosts:
+        cpuready = query_performance_manager(content, 1, host, id_map["cpu.ready.summation"], interval =20)
+        memballoon = query_performance_manager(content, 1, host, id_map["mem.vmmemctl.average"], interval =20)
+        memswapped = query_performance_manager(content, 1, host, id_map["mem.swapused.average"], interval =20)
+        networkTP = query_performance_manager(content, 5, host, id_map["net.usage.average"], interval = 20)
+        readLat = query_performance_manager(content, 3, host, id_map["datastore.totalReadLatency.average"], inst = "*", interval=20)
+        writeLat = query_performance_manager(content, 3, host, id_map["datastore.totalWriteLatency.average"], inst = "*", interval=20)
         name = host.name
+        readLatAvg = sum(readLat[0].value[0].value)/len(readLat[0].value[0].value)
+        writeLatAvg = sum(writeLat[0].value[0].value)/len(writeLat[0].value[0].value)
+        disklat = (readLatAvg+writeLatAvg)/2
+        mb_memball = round((float(memballoon[0].value[0].value[0])/1024), 2)
+        mb_memswap = round((float(memswapped[0].value[0].value[0])/1024), 2)
+        cpuready_perc = round((float(cpuready[0].value[0].value[0])/20000)*100, 2)
+        network_throughput = round(((sum(networkTP[0].value[0].value)/len(networkTP[0].value[0].value)))/1024, 2)
         powerStatus = host.runtime.powerState
         connectionStatus = host.runtime.connectionState
         cpuPercent = (host.summary.quickStats.overallCpuUsage)/(host.summary.hardware.numCpuCores*(host.summary.hardware.cpuMhz))*100
@@ -85,7 +110,12 @@ def get_perf_metrics(service_instance):
             'numCpus' : numcpus,
             'model' : model,
             'version' : version,
-            'status' : status
+            'status' : status,
+            'disklat' : disklat,
+            'mem_balloon': mb_memball,
+            'mem_swap' : mb_memswap,
+            'cpuready' : cpuready_perc,
+            'networkTp' : network_throughput
         }
         performance_info.append(performance_data)
     host_container.Destroy()
