@@ -95,9 +95,21 @@ def get_perf_metrics(service_instance):
 
 def get_licenses(content: vim.ServiceInstanceContent):
     lm = content.licenseManager.licenseAssignmentManager
-    entity_id = content.about.instanceUuid
-    licenses = lm.QueryAssignedLicenses(entity_id)
-    return [License.from_license_info(la.assignedLicense) for la in licenses]
+    licenses = []
+
+    # get vcenter licenses
+    vcenter_license_assignments = lm.QueryAssignedLicenses(content.about.instanceUuid)
+    licenses.extend(License.from_license_assignment(la) for la in vcenter_license_assignments)
+
+    # get esxi host licenses
+    host_container = content.viewManager.CreateContainerView(content.rootFolder, [vim.HostSystem], True)
+    hosts = host_container.view
+    for h in hosts:
+        host_license_assignments = lm.QueryAssignedLicenses(h._moId)
+        licenses.extend(License.from_license_assignment(la) for la in host_license_assignments)
+    host_container.Destroy()
+
+    return licenses
 
 
 @dataclass
@@ -106,6 +118,7 @@ class License:
     custom dataclass to flatten pyvmomi's LicenseInfo class
     """
     name: str
+    entity_name: str
     product_name: str
     product_version: str
     file_version: str
@@ -113,7 +126,7 @@ class License:
     features: list[str] = field(default_factory=list)
 
     @classmethod
-    def from_license_info(cls, info: vim.LicenseManager.LicenseInfo):
+    def from_license_assignment(cls, license: vim.LicenseAssignmentManager.LicenseAssignment):
         # default attribute values in case properties are missing
         product_name = ''
         product_version = ''
@@ -122,7 +135,7 @@ class License:
         features = []
 
         # loop through properties (stored as list of custom key-value object)
-        for p in info.properties:
+        for p in license.assignedLicense.properties:
             if p.key == 'ProductName':
                 product_name = p.value
             elif p.key == 'ProductVersion':
@@ -135,7 +148,8 @@ class License:
                 features.append(p.value.value)
 
         return cls(
-            name = info.name,
+            name = license.assignedLicense.name,
+            entity_name = license.entityDisplayName or '',
             product_name = product_name,
             product_version = product_version,
             file_version = file_version,
