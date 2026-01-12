@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from dataclasses import dataclass
-import csv
+
 
 class Alert(BaseModel):
     """
@@ -28,6 +28,7 @@ class StorageDevice:
     def get_utilization_percentage(self, decimal_precision: int) -> float:
         return round(self.used_storage / self.total_storage, decimal_precision)
 
+
 class Report:
     capacity: list[list]
     alerts: list[list]
@@ -40,16 +41,36 @@ class Report:
     devices: list
     csvData: str
     dictData: dict
-    headerRow: list = None
+    headerRow: list
 
-    def __init__(self, headerrow=None):
+    def __init__(self, headerrow):
         self.headerRow = headerrow
         self.rows = []
 
-    def makecsv():
-        pass
-    def makedict():
-        pass
+    def output_csv(self) -> list[list[str]]:
+        # Make the output CSV and insert the header row.
+        csv_table = list[str]()
+        csv_table.append(self.headerRow)
+        
+        # Add each row as a string seperating data with commas.
+        for row in self.rows:
+            csv_table.append(','.join(row))
+
+        return csv_table
+        
+    def output_data_as_dicts(self) -> list[dict[str, str]]:
+        # For each row of data, turn it into a dictionary.
+        all_data = list[dict[str, str]]()
+        for row in self.rows:
+            # Add each element of the data with its corresponding key from the header row.
+            current_item = {}
+            for header_index,element in enumerate(row):
+                current_item[self.headerRow[header_index]] = element
+            
+            # Add the dictionary of data to the return list.
+            all_data.append(current_item)
+        
+        return all_data
 
 
 class Device:
@@ -75,5 +96,3 @@ class Device:
             self.ip  = data['ip_address'].split('//')[1].split(':')[0]
         else:
             self.ip  = data['ip_address'].split(':')[0]
-
-    

@@ -3,7 +3,7 @@ from typing import List
 
 from dotenv import load_dotenv
 import meraki
-from DeviceModules import classes
+from DeviceModules.classes import Alert
 
 
 # Load environment variables.
@@ -62,7 +62,7 @@ def get_meraki_organization_alerts(network_ids: List[str]) -> List[dict]:
     return raw_meraki_alerts
 
 
-def cleanse_meraki_organization_alerts(meraki_organization_alerts: List[dict]) -> List[classes.Alert]:
+def cleanse_meraki_organization_alerts(meraki_organization_alerts: List[dict]) -> List[Alert]:
     """
     Converts the provided list of meraki organization alert dictionaries into a list of Alert objects.
 
@@ -74,10 +74,10 @@ def cleanse_meraki_organization_alerts(meraki_organization_alerts: List[dict]) -
     """
 
     # Put all the alert dictionaries into a list of alert objects.
-    all_alerts = list[classes.Alert]()
+    all_alerts = list[Alert]()
     for org_alert_dict in meraki_organization_alerts:
         # Extract information from the dictionary into the alert object and add it to the return list.
-        curr_alert = classes.Alert(description=f"Category: {org_alert_dict['category']} | Type: {org_alert_dict['type']}",
+        curr_alert = Alert(description=f"Category: {org_alert_dict['category']} | Type: {org_alert_dict['type']}",
                            affected_device=org_alert_dict['scope']['devices'][0]['name'],
                            severity='info' if org_alert_dict['severity'] is None else org_alert_dict['severity'])
         all_alerts.append(curr_alert)
@@ -86,7 +86,7 @@ def cleanse_meraki_organization_alerts(meraki_organization_alerts: List[dict]) -
     return all_alerts
 
 
-def get_alerts() -> List[classes.Alert]:
+def get_alerts() -> List[Alert]:
     """
     Return a list of the current alerts from a Meraki organization.
 

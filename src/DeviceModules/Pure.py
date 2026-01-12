@@ -73,4 +73,20 @@ def get_report(device: classes.Device, report: classes.Report):
             report.rows = report.rows.append(row)
     else:
             report.rows = [row]
+            
+    datastore_payload_data = []
+    for datastore in datastore_raw_data:
+        datastore_payload_data.append({
+            'name' : datastore['Name'],
+            'capacity': datastore['capacity_rounded'],
+            'freespace': datastore['free_space_rounded'],
+            'type' : datastore["Type"]
+        })
+        report.rows.append([datastore["Name"],datastore["Type"],datastore["Capacity_GB"],datastore["Free_Space_GB"],datastore["Used_Space_GB"],datastore["Used_Space_Percent"],datastore["Free_Space_Percent"],datastore["Accessible"]])
+    report.dictData=datastore_payload_data
     return report
+
+    # Convert to dictionary for Power Automate
+    # Add dictionary to report object in wrapper
+    # Testing in HartIC / KitoCrosby
+    # Originally working in AST - they have Pure devices
