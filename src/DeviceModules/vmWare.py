@@ -2,7 +2,7 @@ import atexit
 import json
 import os
 import ssl
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 
 import dotenv
@@ -155,6 +155,9 @@ class License:
             file_version = file_version,
             expiration_date = expiration_date,
             features = features)
+
+    def to_dict(self):
+        return asdict(self)
 
 
 def get_report(device: classes.Device, report: classes.Report):
