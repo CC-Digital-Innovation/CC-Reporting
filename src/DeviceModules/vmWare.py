@@ -66,21 +66,20 @@ def get_perf_metrics(service_instance):
     hosts = host_container.view
     performance_info = []
     for host in hosts:
-        cpuready = query_performance_manager(content, 1, host, "cpu.ready.summation")
-        memballoon = query_performance_manager(content, 1, host, "mem.vmmemctl.average")
-        memswapped = query_performance_manager(content, 1, host, "mem.swapused.average")
-        networkTP = query_performance_manager(content, 5, host, "net.usage.average")
-        dstores = host.datastore
-        readLatTotal = 0
-        writeLatTotal = 0
-        for dstore in dstores:
-            readLat = query_performance_manager(content, 3, dstore, "datastore.totalReadLatency.average")
-            writeLat = query_performance_manager(content, 1, dstore, "datastore.totalWriteLatency.average")
-            readLatTotal = readLatTotal + readLat
-            writeLatTotal = writeLatTotal + writeLat
-        avgReadLat = readLatTotal/len(dstore)
-        avgwriteLat = writeLatTotal/len(dstore)
+        cpuready = query_performance_manager(content, 1, host, id_map["cpu.ready.summation"], interval =20)
+        memballoon = query_performance_manager(content, 1, host, id_map["mem.vmmemctl.average"], interval =20)
+        memswapped = query_performance_manager(content, 1, host, id_map["mem.swapused.average"], interval =20)
+        networkTP = query_performance_manager(content, 5, host, id_map["net.usage.average"], interval = 20)
+        readLat = query_performance_manager(content, 3, host, id_map["datastore.totalReadLatency.average"], inst = "*", interval=20)
+        writeLat = query_performance_manager(content, 3, host, id_map["datastore.totalWriteLatency.average"], inst = "*", interval=20)
         name = host.name
+        readLatAvg = sum(readLat[0].value[0].value)/len(readLat[0].value[0].value)
+        writeLatAvg = sum(writeLat[0].value[0].value)/len(writeLat[0].value[0].value)
+        disklat = (readLatAvg+writeLatAvg)/2
+        mb_memball = round((float(memballoon[0].value[0].value[0])/1024), 2)
+        mb_memswap = round((float(memswapped[0].value[0].value[0])/1024), 2)
+        cpuready_perc = round((float(cpuready[0].value[0].value[0])/20000)*100, 2)
+        network_throughput = round(((sum(networkTP[0].value[0].value)/len(networkTP[0].value[0].value)))/1024, 2)
         powerStatus = host.runtime.powerState
         connectionStatus = host.runtime.connectionState
         cpuPercent = (host.summary.quickStats.overallCpuUsage)/(host.summary.hardware.numCpuCores*(host.summary.hardware.cpuMhz))*100
@@ -111,7 +110,12 @@ def get_perf_metrics(service_instance):
             'numCpus' : numcpus,
             'model' : model,
             'version' : version,
-            'status' : status
+            'status' : status,
+            'disklat' : disklat,
+            'mem_balloon': mb_memball,
+            'mem_swap' : mb_memswap,
+            'cpuready' : cpuready_perc,
+            'networkTp' : network_throughput
         }
         performance_info.append(performance_data)
     host_container.Destroy()
