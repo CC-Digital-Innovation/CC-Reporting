@@ -46,10 +46,10 @@ def get_capacity_data(service_instance):
         datastore_info.append(datastore_data)
     return datastore_info
 
-def query_performance_manager(content, samples, host, statId):
+def query_performance_manager(content, samples, host, statId, inst = "", interval = None):
     performanceManager = content.perfManager
-    metricId = vim.PerformanceManager.MetricId(counterId = statId)
-    query = vim.PerformanceManager.QuerySpec(maxSample = samples, entity=host, metricId=[metricId])
+    metricId = vim.PerformanceManager.MetricId(counterId = statId, instance= inst)
+    query = vim.PerformanceManager.QuerySpec(intervalId = interval, maxSample = samples, entity=host, metricId=[metricId])
     perfResults = performanceManager.QueryPerf(querySpec=[query])
     return perfResults
 
