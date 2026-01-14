@@ -1,15 +1,14 @@
-#Author Ben Meyers
-import urllib3
-from pyVim.connect import SmartConnect, Disconnect
-from pyVmomi import vim
-import dotenv
-import requests
-import os
-from DeviceModules import classes
-import json
 import atexit
 import ssl
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
 
+import requests
+import urllib3
+from pyVim.connect import Disconnect, SmartConnect
+from pyVmomi import vim
+
+from DeviceModules import classes
 
 # Start session a disable certifcate verification
 session = requests.session()
@@ -19,7 +18,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Get the capacity data with the pyvmomi sdk
 def get_capacity_data(service_instance):
-    info = {}
     content = service_instance.RetrieveContent()
 
     # Get datastore information
@@ -121,6 +119,73 @@ def get_perf_metrics(service_instance):
     host_container.Destroy()
     return performance_info
 
+def get_licenses(content: vim.ServiceInstanceContent):
+    lm = content.licenseManager.licenseAssignmentManager
+    licenses = []
+
+    # get vcenter licenses
+    vcenter_license_assignments = lm.QueryAssignedLicenses(content.about.instanceUuid)
+    licenses.extend(License.from_license_assignment(la) for la in vcenter_license_assignments)
+
+    # get esxi host licenses
+    host_container = content.viewManager.CreateContainerView(content.rootFolder, [vim.HostSystem], True)
+    hosts = host_container.view
+    for h in hosts:
+        host_license_assignments = lm.QueryAssignedLicenses(h._moId)
+        licenses.extend(License.from_license_assignment(la) for la in host_license_assignments)
+    host_container.Destroy()
+
+    return licenses
+
+
+@dataclass
+class License:
+    """
+    custom dataclass to flatten pyvmomi's LicenseInfo class
+    """
+    name: str
+    entity_name: str
+    product_name: str
+    product_version: str
+    file_version: str
+    expiration_date: datetime | None = None
+    features: list[str] = field(default_factory=list)
+
+    @classmethod
+    def from_license_assignment(cls, license: vim.LicenseAssignmentManager.LicenseAssignment):
+        # default attribute values in case properties are missing
+        product_name = ''
+        product_version = ''
+        file_version = ''
+        expiration_date = None
+        features = []
+
+        # loop through properties (stored as list of custom key-value object)
+        for p in license.assignedLicense.properties:
+            if p.key == 'ProductName':
+                product_name = p.value
+            elif p.key == 'ProductVersion':
+                product_version = p.value
+            elif p.key == 'FileVersion':
+                file_version = p.value
+            elif p.key == 'expirationDate':
+                expiration_date = p.value
+            elif p.key == 'feature':
+                features.append(p.value.value)
+
+        return cls(
+            name = license.assignedLicense.name,
+            entity_name = license.entityDisplayName or '',
+            product_name = product_name,
+            product_version = product_version,
+            file_version = file_version,
+            expiration_date = expiration_date,
+            features = features)
+
+    def to_dict(self):
+        return asdict(self)
+
+
 def get_report(device: classes.Device, report: classes.Report):
     # Load vCenter env variables
     vcenter_apihost = device.hostname
@@ -138,6 +203,7 @@ def get_report(device: classes.Device, report: classes.Report):
     content = si.RetrieveContent()
     datastore_raw_data = get_capacity_data(si)
     perf_metrics = get_perf_metrics(si)
+    licenses = get_licenses(content)
     atexit.register(Disconnect, si)
     # test_vsphere_automation()
     datastore_payload_data = []
@@ -150,5 +216,7 @@ def get_report(device: classes.Device, report: classes.Report):
         })
         report.rows.append([datastore["Name"],datastore["Type"],datastore["Capacity_GB"],datastore["Free_Space_GB"],datastore["Used_Space_GB"],datastore["Used_Space_Percent"],datastore["Free_Space_Percent"],datastore["Accessible"]])
     
-    report.dictData={'datastore_Cap' : datastore_payload_data, 'vm_performance' : perf_metrics}
+    report.dictData={'datastore_Cap' : datastore_payload_data, 
+                     'vm_performance' : perf_metrics,
+                     'licenses': [l.to_dict() for l in licenses]}
     return report
