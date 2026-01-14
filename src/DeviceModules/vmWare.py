@@ -1,11 +1,8 @@
 import atexit
-import json
-import os
 import ssl
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 
-import dotenv
 import requests
 import urllib3
 from pyVim.connect import Disconnect, SmartConnect
@@ -21,7 +18,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Get the capacity data with the pyvmomi sdk
 def get_capacity_data(service_instance):
-    info = {}
     content = service_instance.RetrieveContent()
 
     # Get datastore information
@@ -177,6 +173,7 @@ def get_report(device: classes.Device, report: classes.Report):
     content = si.RetrieveContent()
     datastore_raw_data = get_capacity_data(si)
     perf_metrics = get_perf_metrics(si)
+    licenses = get_licenses(content)
     atexit.register(Disconnect, si)
     # test_vsphere_automation()
     datastore_payload_data = []
@@ -189,5 +186,7 @@ def get_report(device: classes.Device, report: classes.Report):
         })
         report.rows.append([datastore["Name"],datastore["Type"],datastore["Capacity_GB"],datastore["Free_Space_GB"],datastore["Used_Space_GB"],datastore["Used_Space_Percent"],datastore["Free_Space_Percent"],datastore["Accessible"]])
     
-    report.dictData={'datastore_Cap' : datastore_payload_data, 'vm_performance' : perf_metrics}
+    report.dictData={'datastore_Cap' : datastore_payload_data, 
+                     'vm_performance' : perf_metrics,
+                     'licenses': [l.to_dict() for l in licenses]}
     return report
