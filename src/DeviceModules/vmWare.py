@@ -183,7 +183,10 @@ class License:
             features = features)
 
     def to_dict(self):
-        return asdict(self)
+        data = asdict(self)
+        # convert datetime to str
+        data['expiration_date'] = str(data['expiration_date'])
+        return data
 
 
 def get_report(device: classes.Device, report: classes.Report):
@@ -218,5 +221,5 @@ def get_report(device: classes.Device, report: classes.Report):
     
     report.dictData={'datastore_Cap' : datastore_payload_data, 
                      'vm_performance' : perf_metrics,
-                     'licenses': [l.to_dict() for l in licenses]}
+                     'licenses': [l.to_json() for l in licenses]}
     return report
