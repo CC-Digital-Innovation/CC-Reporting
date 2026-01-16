@@ -185,7 +185,8 @@ class License:
     def to_json(self):
         data = asdict(self)
         # convert datetime to str
-        data['expiration_date'] = str(data['expiration_date'])
+        if data['expiration_date'] is not None:
+            data['expiration_date'] = str(data['expiration_date'])
         return data
 
 
