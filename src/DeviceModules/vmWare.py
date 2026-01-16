@@ -182,7 +182,7 @@ class License:
             expiration_date = expiration_date,
             features = features)
 
-    def to_dict(self):
+    def to_json(self):
         data = asdict(self)
         # convert datetime to str
         data['expiration_date'] = str(data['expiration_date'])
