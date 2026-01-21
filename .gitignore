@@ -163,3 +163,4 @@ config.ini
 devices.json
 csvsdir/
 pull.bat
+pull.sh
