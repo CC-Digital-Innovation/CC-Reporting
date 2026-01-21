@@ -149,6 +149,7 @@ for key in reports.keys():
         logger.info(f"Sending report for: {key}")
         send_report_data(temprep.dictData, key)
     if temprep.rows:
+        os.makedirs('./csvsdir', exist_ok=True)
         with open(os.path.join('csvsdir', f"{key}.csv") , "w", newline='') as file:
             csvwrite = csv.writer(file)
             if temprep.headerRow:
