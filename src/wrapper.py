@@ -1,8 +1,6 @@
 from DeviceModules import Isilon, DataDomain, Pure, UCS, VMAX, XtremIO, NetAPP, vmWare
 from DeviceModules import classes
-from pathlib import PurePath
 import dotenv
-import tempfile
 import os
 import csv
 import json
@@ -26,7 +24,7 @@ def logger_init():
 
 logger_init()
 #Set up globals from .env
-dotenv.load_dotenv(PurePath(__file__).with_name('.env'))
+dotenv.load_dotenv('.env')
 
 SNOW_INSTANCE = os.getenv('Snow_Instance')
 SNOW_USERNAME = os.getenv('Snow_User')
