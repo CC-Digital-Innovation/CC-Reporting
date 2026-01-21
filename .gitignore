@@ -162,5 +162,4 @@ cython_debug/
 config.ini
 devices.json
 csvsdir/
-pull.bat
 pull.sh
