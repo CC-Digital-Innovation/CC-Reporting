@@ -87,6 +87,11 @@ def get_perf_metrics(service_instance):
         uptime = host.summary.quickStats.uptime/60/60/24
         vmcount = len(host.vm)
         numcpus = host.summary.hardware.numCpuCores
+        vcputotal=0
+        for vm in host.vm:
+            if vm.summary.runtime.powerState == 'poweredOn':
+                vcputotal=vcputotal+vm.summary.config.numCpu
+        vcpuratio = round(vcputotal/numcpus, 2)
         model = host.summary.hardware.model
         version = host.summary.config.product.version
         status = 'Good'
@@ -113,7 +118,9 @@ def get_perf_metrics(service_instance):
             'mem_balloon': mb_memball,
             'mem_swap' : mb_memswap,
             'cpuready' : cpuready_perc,
-            'networkTp' : network_throughput
+            'networkTp' : network_throughput,
+            'vcputotal' : vcputotal,
+            'vcpuratio' : vcpuratio
         }
         performance_info.append(performance_data)
     host_container.Destroy()
