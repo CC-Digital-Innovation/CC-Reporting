@@ -29,6 +29,7 @@ def get_capacity_data(service_instance):
         capacity = datastore.summary.capacity / (1024**3)
         free_space = datastore.summary.freeSpace / (1024**3)
         used_space = (datastore.summary.capacity - datastore.summary.freeSpace) / (1024**3)
+        vms = len(datastore.vm)
         datastore_data = {
             "Name" : datastore.summary.name,
             "Type" : datastore.summary.type,
@@ -39,7 +40,8 @@ def get_capacity_data(service_instance):
             "Free_Space_GB": format(free_space, '.2f') + ' GB',
             "Used_Space_GB": format(used_space, '.2f') + ' GB',
             "Free_Space_Percent": format(free_space / capacity * 100, '.2f') + ' %',
-            "Used_Space_Percent": format(used_space / capacity * 100, '.2f') + ' %'
+            "Used_Space_Percent": format(used_space / capacity * 100, '.2f') + ' %',
+            "vmcount" : vms
         }
         datastore_info.append(datastore_data)
     return datastore_info
