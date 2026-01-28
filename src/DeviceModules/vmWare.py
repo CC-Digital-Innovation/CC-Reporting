@@ -73,13 +73,13 @@ def get_perf_metrics(service_instance):
         readLat = query_performance_manager(content, 3, host, id_map["datastore.totalReadLatency.average"], inst = "*", interval=20)
         writeLat = query_performance_manager(content, 3, host, id_map["datastore.totalWriteLatency.average"], inst = "*", interval=20)
         name = host.name
-        readLatAvg = sum(readLat[0].value[0].value)/len(readLat[0].value[0].value)
-        writeLatAvg = sum(writeLat[0].value[0].value)/len(writeLat[0].value[0].value)
+        readLatAvg = 0 if len(readLat) == 0 else sum(readLat[0].value[0].value)/len(readLat[0].value[0].value)
+        writeLatAvg = 0 if len(writeLat) == 0 else sum(writeLat[0].value[0].value)/len(writeLat[0].value[0].value)
         disklat = (readLatAvg+writeLatAvg)/2
-        mb_memball = round((float(memballoon[0].value[0].value[0])/1024), 2)
-        mb_memswap = round((float(memswapped[0].value[0].value[0])/1024), 2)
-        cpuready_perc = round((float(cpuready[0].value[0].value[0])/20000)*100, 2)
-        network_throughput = round(((sum(networkTP[0].value[0].value)/len(networkTP[0].value[0].value)))/1024, 2)
+        mb_memball = 0.00 if len(memballoon) == 0 else round((float(memballoon[0].value[0].value[0])/1024), 2)
+        mb_memswap = 0.00 if len(memswapped) == 0 else round((float(memswapped[0].value[0].value[0])/1024), 2)
+        cpuready_perc = 0.00 if len(cpuready) == 0 else round((float(cpuready[0].value[0].value[0])/20000)*100, 2)
+        network_throughput = 0.00 if len(networkTP) == 0 else round(((sum(networkTP[0].value[0].value)/len(networkTP[0].value[0].value)))/1024, 2)
         powerStatus = host.runtime.powerState
         connectionStatus = host.runtime.connectionState
         cpuPercent = (host.summary.quickStats.overallCpuUsage)/(host.summary.hardware.numCpuCores*(host.summary.hardware.cpuMhz))*100
