@@ -152,7 +152,7 @@ for key in reports.keys():
     if temprep.rows:
         os.makedirs('./csvsdir', exist_ok=True)
         now = datetime.now()
-        with open(os.path.join('csvsdir', f"{now.year}_{now.month}_{now.day}_{key}.csv") , "w", newline='') as file:
+        with open(os.path.join('csvsdir', f"{now.strftime('%Y')}_{now.strftime('%m')}_{now.strftime('%d')}_{key}.csv") , "w", newline='') as file:
             csvwrite = csv.writer(file)
             if temprep.headerRow:
                 csvwrite.writerow(temprep.headerRow)
