@@ -1,3 +1,4 @@
+from datetime import datetime
 from DeviceModules import Isilon, DataDomain, Pure, UCS, VMAX, XtremIO, NetAPP, vmWare
 from DeviceModules import classes
 import dotenv
@@ -150,7 +151,8 @@ for key in reports.keys():
         send_report_data(temprep.dictData, key)
     if temprep.rows:
         os.makedirs('./csvsdir', exist_ok=True)
-        with open(os.path.join('csvsdir', f"{key}.csv") , "w", newline='') as file:
+        now = datetime.now()
+        with open(os.path.join('csvsdir', f"{now.year}_{now.month}_{now.day}_{key}.csv") , "w", newline='') as file:
             csvwrite = csv.writer(file)
             if temprep.headerRow:
                 csvwrite.writerow(temprep.headerRow)
